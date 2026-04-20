@@ -1,0 +1,1 @@
+Clases con los metodos para hacer crud a la base de datos, cada clase se corresponde con una tabla de la base de datos. Se usan para separar la logica de acceso a datos del resto de la aplicacion. Cada clase tiene metodos para insertar, actualizar, eliminar y consultar datos de la tabla correspondiente.

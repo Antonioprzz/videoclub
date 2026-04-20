@@ -1,0 +1,1 @@
+Clase conexionBD para conectar con la base de datos, se utiliza el driver de SQLite, se establece la conexion con la base de datos y se devuelve la conexion para ser utilizada en otras clases.

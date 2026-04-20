@@ -1,0 +1,1 @@
+Clases con los modelos de datos, cada clase se corresponde con una tabla de la base de datos. Se usan para representar los datos de la aplicacion y para transferir datos entre las capas de la aplicacion. Cada clase tiene atributos que corresponden a las columnas de la tabla y metodos getter y setter para acceder a esos atributos.
