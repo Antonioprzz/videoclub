@@ -2,7 +2,7 @@ package modelo;
 
 public class Actores {
 
-    private int id;
+    private int id_actor;
     private String nombre;
     private String nacionalidad;
     private String sexo;
@@ -10,19 +10,19 @@ public class Actores {
     public Actores() {
     }
 
-    public Actores(int id, String nombre, String nacionalidad, String sexo) {
-        this.id = id;
+    public Actores(int id_actor, String nombre, String nacionalidad, String sexo) {
+        this.id_actor = id_actor;
         this.nombre = nombre;
         this.nacionalidad = nacionalidad;
         this.sexo = sexo;
     }
 
     public int getId() {
-        return id;
+        return id_actor;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.id_actor = id;
     }
 
     public String getNombre() {
@@ -52,7 +52,7 @@ public class Actores {
     @Override
     public String toString() {
         return "Actores{" +
-                "id=" + id +
+                "id=" + id_actor +
                 ", nombre='" + nombre + '\'' +
                 ", nacionalidad='" + nacionalidad + '\'' +
                 ", sexo='" + sexo + '\'' +

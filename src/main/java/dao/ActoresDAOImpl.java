@@ -30,13 +30,13 @@ public class ActoresDAOImpl implements ActoresDAO {
             }
             return actor;
         } catch (SQLException e) {
-            throw new RuntimeException("Error al guardar el actor: " + e.getMessage(), e);
+            throw new ActoresDAOException("Error al guardar el actor: " + e.getMessage(), e);
         }
     }
 
     @Override
     public Optional<Actores> buscarPorId(int id) {
-        String sql = "SELECT id, nombre, nacionalidad, sexo FROM actor WHERE id = ?";
+        String sql = "SELECT id_actor, nombre, nacionalidad, sexo FROM actor WHERE id_actor = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -46,45 +46,45 @@ public class ActoresDAOImpl implements ActoresDAO {
                 return Optional.empty();
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar actor por id: " + e.getMessage(), e);
+            throw new ActoresDAOException("Error al guardar el actor: " + e.getMessage(), e);
         }
     }
 
     @Override
     public List<Actores> buscarPorNombre(String nombre) {
-        String sql = "SELECT id, nombre, nacionalidad, sexo FROM actor WHERE name = ?";
+        String sql = "SELECT id_actor, nombre, nacionalidad, sexo FROM actor WHERE nombre = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, nombre);
             return mapearFilas(stmt.executeQuery());
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar actores por nombre: " + e.getMessage(), e);
+            throw new ActoresDAOException("Error al guardar el actor: " + e.getMessage(), e);
         }
     }
 
     @Override
     public List<Actores> buscarPorNacionalidad(String nacionalidad) {
-        String sql = "SELECT id, nombre, nacionalidad, sexo FROM actor WHERE nationality = ?";
+        String sql = "SELECT id_actor, nombre, nacionalidad, sexo FROM actor WHERE nacionalidad = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, nacionalidad);
             return mapearFilas(stmt.executeQuery());
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar actores por nacionalidad: " + e.getMessage(), e);
+            throw new ActoresDAOException("Error al guardar el actor: " + e.getMessage(), e);
         }
     }
 
     @Override
     public List<Actores> listarTodos() {
-        String sql = "SELECT id, nombre, nacionalidad, sexo FROM actor";
+        String sql = "SELECT id_actor, nombre, nacionalidad, sexo FROM actor";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             return mapearFilas(stmt.executeQuery());
         } catch (SQLException e) {
-            throw new RuntimeException("Error al listar todos los actores: " + e.getMessage(), e);
+            throw new ActoresDAOException("Error al guardar el actor: " + e.getMessage(), e);
         }
     }
 
     @Override
     public Actores actualizar(Actores actor) {
-        String sql = "UPDATE actor SET nombre = ?, nacionalidad = ?, sexo = ? WHERE id = ?";
+        String sql = "UPDATE actor SET nombre = ?, nacionalidad = ?, sexo = ? WHERE id_actor = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, actor.getNombre());
             stmt.setString(2, actor.getNacionalidad());
@@ -93,24 +93,24 @@ public class ActoresDAOImpl implements ActoresDAO {
             stmt.executeUpdate();
             return actor;
         } catch (SQLException e) {
-            throw new RuntimeException("Error al actualizar el actor: " + e.getMessage(), e);
+            throw new ActoresDAOException("Error al guardar el actor: " + e.getMessage(), e);
         }
     }
 
     @Override
     public boolean eliminarPorId(int id) {
-        String sql = "DELETE FROM actor WHERE id = ?";
+        String sql = "DELETE FROM actor WHERE id_actor = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            throw new RuntimeException("Error al eliminar el actor: " + e.getMessage(), e);
+            throw new ActoresDAOException("Error al guardar el actor: " + e.getMessage(), e);
         }
     }
 
     private Actores mapearFila(ResultSet rs) throws SQLException {
         return new Actores(
-                rs.getInt("id"),
+                rs.getInt("id_actor"),
                 rs.getString("nombre"),
                 rs.getString("nacionalidad"),
                 rs.getString("sexo")
@@ -125,5 +125,30 @@ public class ActoresDAOImpl implements ActoresDAO {
             }
         }
         return actores;
+    }
+
+    @Override
+    public void asociarAPelicula(int id_actor, int idPelicula, String rol) {
+        String sql = "INSERT INTO actor_pelicula (id_actor, id_pelicula, rol) VALUES (?, ?, ?)";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, id_actor);
+            stmt.setInt(2, idPelicula);
+            stmt.setString(3, rol);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new ActoresDAOException("Error al guardar el actor: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void desvincularDePelicula(int idActor, int idPelicula) {
+        String sql = "DELETE FROM actor_pelicula WHERE id_actor = ? AND id_pelicula = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, idActor);
+            stmt.setInt(2, idPelicula);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new ActoresDAOException("Error al guardar el actor: " + e.getMessage(), e);
+        }
     }
 }
