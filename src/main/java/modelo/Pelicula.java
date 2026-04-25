@@ -43,7 +43,7 @@ public class Pelicula {
         return nacionalidad;
     }
 
-    public void setNacionalidad(String nationality) {
+    public void setNacionalidad(String nacionalidad) {
         this.nacionalidad = nacionalidad;
     }
 
@@ -51,7 +51,7 @@ public class Pelicula {
         return productora;
     }
 
-    public void setProductora(String productionCompany) {
+    public void setProductora(String productora) {
         this.productora = productora;
     }
 

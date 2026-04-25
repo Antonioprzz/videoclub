@@ -40,7 +40,7 @@ public class PeliculaDAOImpl implements PeliculaDAO {
 
     @Override
     public Optional<Pelicula> buscarPorId(int id) {
-        String sql = "SELECT titulo, nacionalidad, productora, fecha, idDirector FROM movie WHERE id = ?";
+        String sql = "SELECT titulo, nacionalidad, productora, fecha, idDirector FROM peliculas WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -56,7 +56,7 @@ public class PeliculaDAOImpl implements PeliculaDAO {
 
     @Override
     public List<Pelicula> buscarPorTitulo(String titulo) {
-        String sql = "SELECT id, titulo, nacionalidad, productora, fecha, id_director FROM peliculas WHERE titulo = ?";
+        String sql = "SELECT id, titulo, nacionalidad, productora, fecha, idDirector FROM peliculas WHERE titulo = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, titulo);
             return mapearFilas(stmt.executeQuery());
@@ -67,7 +67,7 @@ public class PeliculaDAOImpl implements PeliculaDAO {
 
     @Override
     public List<Pelicula> buscarPorNacionalidad(String nacionalidad) {
-        String sql = "SELECT id, titulo, nacionalidad, productora, fecha, id_director FROM peliculas WHERE nacionalidad = ?";
+        String sql = "SELECT id, titulo, nacionalidad, productora, fecha, idDirector FROM peliculas WHERE nacionalidad = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, nacionalidad);
             return mapearFilas(stmt.executeQuery());
@@ -78,7 +78,7 @@ public class PeliculaDAOImpl implements PeliculaDAO {
 
     @Override
     public List<Pelicula> buscarPorProductora(String productora) {
-        String sql = "SELECT id, titulo, nacionalidad, productora, fecha, id_director FROM peliculas WHERE productora = ?";
+        String sql = "SELECT id, titulo, nacionalidad, productora, fecha, idDirector FROM peliculas WHERE productora = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, productora);
             return mapearFilas(stmt.executeQuery());
@@ -89,7 +89,7 @@ public class PeliculaDAOImpl implements PeliculaDAO {
 
     @Override
     public List<Pelicula> listarTodas() {
-        String sql = "SELECT id, titulo, nacionalidad, productora, fecha, id_director FROM peliculas";
+        String sql = "SELECT id, titulo, nacionalidad, productora, fecha, idDirector FROM peliculas";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             return mapearFilas(stmt.executeQuery());
         } catch (SQLException e) {
@@ -99,7 +99,7 @@ public class PeliculaDAOImpl implements PeliculaDAO {
 
     @Override
     public Pelicula actualizar(Pelicula pelicula) {
-        String sql = "UPDATE peliculas SET titulo = ?, nacionalidad = ?, productora = ?, fecha = ?, id_director = ? WHERE id = ?";
+        String sql = "UPDATE peliculas SET titulo = ?, nacionalidad = ?, productora = ?, fecha = ?, idDirector = ? WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, pelicula.getTitulo());
             stmt.setString(2, pelicula.getNacionalidad());
@@ -132,7 +132,7 @@ public class PeliculaDAOImpl implements PeliculaDAO {
                 rs.getString("nacionalidad"),
                 rs.getString("productora"),
                 LocalDate.parse(rs.getString("fecha")),
-                rs.getInt("id_director")
+                rs.getInt("idDirector")
         );
     }
 

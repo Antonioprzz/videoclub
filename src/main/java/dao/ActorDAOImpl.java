@@ -46,7 +46,7 @@ public class ActorDAOImpl implements ActorDAO {
                 return Optional.empty();
             }
         } catch (SQLException e) {
-            throw new ActoresDAOException("Error al guardar el actor: " + e.getMessage(), e);
+            throw new ActoresDAOException("Error al buscar el actor por id: " + e.getMessage(), e);
         }
     }
 
@@ -57,7 +57,7 @@ public class ActorDAOImpl implements ActorDAO {
             stmt.setString(1, nombre);
             return mapearFilas(stmt.executeQuery());
         } catch (SQLException e) {
-            throw new ActoresDAOException("Error al guardar el actor: " + e.getMessage(), e);
+            throw new ActoresDAOException("Error al buscar el actor por nombre: " + e.getMessage(), e);
         }
     }
 
@@ -68,7 +68,7 @@ public class ActorDAOImpl implements ActorDAO {
             stmt.setString(1, nacionalidad);
             return mapearFilas(stmt.executeQuery());
         } catch (SQLException e) {
-            throw new ActoresDAOException("Error al guardar el actor: " + e.getMessage(), e);
+            throw new ActoresDAOException("Error al buscar el actor por nacionalidad: " + e.getMessage(), e);
         }
     }
 
@@ -78,7 +78,7 @@ public class ActorDAOImpl implements ActorDAO {
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             return mapearFilas(stmt.executeQuery());
         } catch (SQLException e) {
-            throw new ActoresDAOException("Error al guardar el actor: " + e.getMessage(), e);
+            throw new ActoresDAOException("Error al listar los actores: " + e.getMessage(), e);
         }
     }
 
@@ -93,7 +93,7 @@ public class ActorDAOImpl implements ActorDAO {
             stmt.executeUpdate();
             return actor;
         } catch (SQLException e) {
-            throw new ActoresDAOException("Error al guardar el actor: " + e.getMessage(), e);
+            throw new ActoresDAOException("Error al actualizar el actor: " + e.getMessage(), e);
         }
     }
 
@@ -104,7 +104,7 @@ public class ActorDAOImpl implements ActorDAO {
             stmt.setInt(1, id);
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            throw new ActoresDAOException("Error al guardar el actor: " + e.getMessage(), e);
+            throw new ActoresDAOException("Error al eliminar el actor por id: " + e.getMessage(), e);
         }
     }
 
@@ -136,7 +136,7 @@ public class ActorDAOImpl implements ActorDAO {
             stmt.setString(3, rol);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new ActoresDAOException("Error al guardar el actor: " + e.getMessage(), e);
+            throw new ActoresDAOException("Error al asociar un actor a una película: " + e.getMessage(), e);
         }
     }
 
@@ -148,7 +148,7 @@ public class ActorDAOImpl implements ActorDAO {
             stmt.setInt(2, idPelicula);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new ActoresDAOException("Error al guardar el actor: " + e.getMessage(), e);
+            throw new ActoresDAOException("Error al desvincular un actor de una película: " + e.getMessage(), e);
         }
     }
 }

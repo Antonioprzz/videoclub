@@ -1,30 +1,28 @@
 package app;
 
-//import dao.ActoresDAO;
-//import dao.ActoresDAOImpl;
-//import dao.PeliculasDAO;
-//import dao.PeliculasDAOImpl;
-//import modelo.Actores;
-//import modelo.Peliculas;
+import dao.*;
+import dao.ActorDAO;
+import dao.ActorDAOImpl;
+import dao.PeliculaDAO;
+import dao.PeliculaDAOImpl;
+import modelo.Actor;
+import modelo.Pelicula;
 
-//import dao.DirectorDAO;
-//import dao.DirectorDAOImpl;
-//import modelo.Director;
+import dao.DirectorDAO;
+import dao.DirectorDAOImpl;
+import modelo.Director;
 
-//import dao.EjemplarDAO;
-//import dao.EjemplarDAOException;
-//import dao.EjemplarDAOImpl;
-//import modelo.Ejemplar;
-//import modelo.EstadoConservacion;
+import dao.EjemplarDAO;
+import dao.EjemplarDAOException;
+import dao.EjemplarDAOImpl;
+import modelo.Ejemplar;
+import modelo.EstadoConservacion;
 
-//import dao.SocioDAO;
-//import dao.SocioDAOException;
-//import dao.SocioDAOImpl;
-//import modelo.Socio;
+import dao.SocioDAO;
+import dao.SocioDAOException;
+import dao.SocioDAOImpl;
+import modelo.Socio;
 
-import dao.AlquilerDAO;
-import dao.AlquilerDAOException;
-import dao.AlquilerDAOImpl;
 import modelo.Alquiler;
 
 import java.sql.Connection;
@@ -38,11 +36,11 @@ import java.util.Scanner;
 
 public class Main {
     private static final Scanner sc = new Scanner(System.in);
-    //private static PeliculasDAO peliculasDAO;
-    //private static ActoresDAO actoresDAO;
-    //private static DirectorDAO directorDAO;
-    //private static EjemplarDAO ejemplarDAO;
-    //private static SocioDAO socioDAO;
+    private static PeliculaDAO peliculasDAO;
+    private static ActorDAO actoresDAO;
+    private static DirectorDAO directorDAO;
+    private static EjemplarDAO ejemplarDAO;
+    private static SocioDAO socioDAO;
     private static AlquilerDAO alquilerDAO;
 
     public static void main(String[] args) {
@@ -52,13 +50,12 @@ public class Main {
 
         try (Connection connection = DriverManager.getConnection(url, user, pass)) {
             // Inicializamos el DAO
-            // peliculasDAO = new PeliculasDAOImpl(connection);
-            //actoresDAO = new ActoresDAOImpl(connection);
-            //directorDAO = new DirectorDAOImpl(connection);
-            //ejemplarDAO = new EjemplarDAOImpl(connection);
-            //socioDAO = new SocioDAOImpl(connection);
+            peliculasDAO = new PeliculaDAOImpl(connection);
+            actoresDAO = new ActorDAOImpl(connection);
+            directorDAO = new DirectorDAOImpl(connection);
+            ejemplarDAO = new EjemplarDAOImpl(connection);
+            socioDAO = new SocioDAOImpl(connection);
             alquilerDAO = new AlquilerDAOImpl(connection);
-
 
             boolean salirGeneral = false;
             int opcion;
@@ -79,19 +76,19 @@ public class Main {
                 opcion = leerOpcion();
 
                 switch (opcion) {
-                    // case 1: menuPeliculas();
-                    // break;
-                    //case 2: menuActores();
-                    //    break;
-                    //case 3:
-                    //    menuDirectores();
-                    //    break;
-                    //case 4:
-                    //    menuEjemplares();
-                    //    break;
-                    //case 5:
-                    //    menuSocios();
-                    //    break;
+                     case 1: menuPeliculas();
+                     break;
+                    case 2: menuActores();
+                        break;
+                    case 3:
+                        menuDirectores();
+                        break;
+                    case 4:
+                        menuEjemplares();
+                        break;
+                    case 5:
+                        menuSocios();
+                        break;
                     case 6:
                         menuAlquileres();
                         break;
@@ -118,7 +115,6 @@ public class Main {
         sc.nextLine(); // Limpiamos el buffer
         return opt;
     }
-    /*
         private static void menuPeliculas() {
             boolean volver = false;
 
@@ -145,7 +141,7 @@ public class Main {
                         System.out.print("Introduce el ID del director: ");
                         int idDirector = leerOpcion();
 
-                        Peliculas nueva = new Peliculas(0, titulo, nacionalidad, productora, fecha, idDirector);
+                        Pelicula nueva = new Pelicula(0, titulo, nacionalidad, productora, fecha, idDirector);
                         peliculasDAO.darDeAlta(nueva);
                         System.out.println("¡Película guardada con éxito! ID: " + nueva.getId());
                         break;
@@ -158,7 +154,7 @@ public class Main {
                         System.out.println("4. Listar todas");
                         System.out.print("Seleccione: ");
                         int sub = leerOpcion();
-                        List<Peliculas> lista = new ArrayList<>();
+                        List<Pelicula> lista = new ArrayList<>();
 
                         if (sub == 1) {
                             System.out.print("Título: ");
@@ -183,10 +179,10 @@ public class Main {
                     case 3:
                         System.out.print("ID de la película a modificar: ");
                         int idMod = leerOpcion();
-                        Optional<Peliculas> optPeli = peliculasDAO.buscarPorId(idMod);
+                        Optional<Pelicula> optPeli = peliculasDAO.buscarPorId(idMod);
 
                         if (optPeli.isPresent()) {
-                            Peliculas p = optPeli.get();
+                            Pelicula p = optPeli.get();
                             System.out.println("Modificando: " + p.getTitulo());
 
                             System.out.print("Nuevo título: ");
@@ -263,7 +259,7 @@ public class Main {
                         break;
                     }
 
-                    Actores nuevo = new Actores(0, nombre, nacionalidad, sexo);
+                    Actor nuevo = new Actor(0, nombre, nacionalidad, sexo);
                     nuevo = actoresDAO.darDeAlta(nuevo);
                     System.out.println("¡Actor guardado con éxito! ID: " + nuevo.getId());
                     break;
@@ -276,7 +272,7 @@ public class Main {
                     System.out.print("Elija un filtro: ");
                     int filtro = leerOpcion();
 
-                    List<Actores> resultados = new ArrayList<>();
+                    List<Actor> resultados = new ArrayList<>();
                     if (filtro == 1) {
                         System.out.print("Introduce el nombre a buscar: ");
                         resultados = actoresDAO.buscarPorNombre(sc.nextLine());
@@ -316,9 +312,9 @@ public class Main {
                     System.out.print("Introduce el ID del actor a modificar: ");
                     int idMod = leerOpcion();
 
-                    Optional<Actores> actorOpt = actoresDAO.buscarPorId(idMod);
+                    Optional<Actor> actorOpt = actoresDAO.buscarPorId(idMod);
                     if (actorOpt.isPresent()) {
-                        Actores actorMod = actorOpt.get();
+                        Actor actorMod = actorOpt.get();
                         System.out.println("Actor actual: " + actorMod);
 
                         System.out.print("Nuevo nombre (deja en blanco para no cambiar): ");
@@ -766,7 +762,6 @@ public class Main {
             }
         }
     }
-     */
 
     private static void menuAlquileres() {
         boolean volver = false;
