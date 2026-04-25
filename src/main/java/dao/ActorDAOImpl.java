@@ -1,22 +1,22 @@
 package dao;
 
-import modelo.Actores;
+import modelo.Actor;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class ActoresDAOImpl implements ActoresDAO {
+public class ActorDAOImpl implements ActorDAO {
 
     private final Connection connection;
 
-    public ActoresDAOImpl(Connection connection) {
+    public ActorDAOImpl(Connection connection) {
         this.connection = connection;
     }
 
     @Override
-    public Actores darDeAlta(Actores actor) {
+    public Actor darDeAlta(Actor actor) {
         String sql = "INSERT INTO actor (nombre, nacionalidad, sexo) VALUES (?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, actor.getNombre());
@@ -35,7 +35,7 @@ public class ActoresDAOImpl implements ActoresDAO {
     }
 
     @Override
-    public Optional<Actores> buscarPorId(int id) {
+    public Optional<Actor> buscarPorId(int id) {
         String sql = "SELECT id_actor, nombre, nacionalidad, sexo FROM actor WHERE id_actor = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
@@ -51,7 +51,7 @@ public class ActoresDAOImpl implements ActoresDAO {
     }
 
     @Override
-    public List<Actores> buscarPorNombre(String nombre) {
+    public List<Actor> buscarPorNombre(String nombre) {
         String sql = "SELECT id_actor, nombre, nacionalidad, sexo FROM actor WHERE nombre = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, nombre);
@@ -62,7 +62,7 @@ public class ActoresDAOImpl implements ActoresDAO {
     }
 
     @Override
-    public List<Actores> buscarPorNacionalidad(String nacionalidad) {
+    public List<Actor> buscarPorNacionalidad(String nacionalidad) {
         String sql = "SELECT id_actor, nombre, nacionalidad, sexo FROM actor WHERE nacionalidad = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, nacionalidad);
@@ -73,7 +73,7 @@ public class ActoresDAOImpl implements ActoresDAO {
     }
 
     @Override
-    public List<Actores> listarTodos() {
+    public List<Actor> listarTodos() {
         String sql = "SELECT id_actor, nombre, nacionalidad, sexo FROM actor";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             return mapearFilas(stmt.executeQuery());
@@ -83,7 +83,7 @@ public class ActoresDAOImpl implements ActoresDAO {
     }
 
     @Override
-    public Actores actualizar(Actores actor) {
+    public Actor actualizar(Actor actor) {
         String sql = "UPDATE actor SET nombre = ?, nacionalidad = ?, sexo = ? WHERE id_actor = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, actor.getNombre());
@@ -108,8 +108,8 @@ public class ActoresDAOImpl implements ActoresDAO {
         }
     }
 
-    private Actores mapearFila(ResultSet rs) throws SQLException {
-        return new Actores(
+    private Actor mapearFila(ResultSet rs) throws SQLException {
+        return new Actor(
                 rs.getInt("id_actor"),
                 rs.getString("nombre"),
                 rs.getString("nacionalidad"),
@@ -117,8 +117,8 @@ public class ActoresDAOImpl implements ActoresDAO {
         );
     }
 
-    private List<Actores> mapearFilas(ResultSet rs) throws SQLException {
-        List<Actores> actores = new ArrayList<>();
+    private List<Actor> mapearFilas(ResultSet rs) throws SQLException {
+        List<Actor> actores = new ArrayList<>();
         try (rs) {
             while (rs.next()) {
                 actores.add(mapearFila(rs));

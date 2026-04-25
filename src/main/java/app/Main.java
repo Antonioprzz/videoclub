@@ -1,16 +1,15 @@
 package app;
 
-import dao.ActoresDAO;
-import dao.ActoresDAOImpl;
+import dao.ActorDAO;
+import dao.ActorDAOImpl;
 //import dao.PeliculasDAO;
 //import dao.PeliculasDAOImpl;
-import modelo.Actores;
+import modelo.Actor;
 //import modelo.Peliculas;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -19,7 +18,7 @@ import java.util.Scanner;
 public class Main {
     private static final Scanner sc = new Scanner(System.in);
     //private static PeliculasDAO peliculasDAO;
-    private static ActoresDAO actoresDAO;
+    private static ActorDAO actoresDAO;
 
     public static void main(String[] args) {
         String url = "jdbc:mysql://localhost:3306/videoclub";
@@ -29,7 +28,7 @@ public class Main {
         try (Connection connection = DriverManager.getConnection(url, user, pass)) {
             // Inicializamos el DAO
             // peliculasDAO = new PeliculasDAOImpl(connection);
-            actoresDAO = new ActoresDAOImpl(connection);
+            actoresDAO = new ActorDAOImpl(connection);
 
             boolean salirGeneral = false;
             int opcion;
@@ -39,7 +38,7 @@ public class Main {
                 System.out.println("   SISTEMA DE GESTIÓN DE VIDEOCLUB");
                 System.out.println("=======================================");
                 System.out.println("1. Gestión de Películas");
-                System.out.println("2. Gestión de Actores");
+                System.out.println("2. Gestión de Actor");
                 System.out.println("3. Gestión de Directores");
                 System.out.println("4. Gestión de Ejemplares");
                 System.out.println("5. Gestión de Socios");
@@ -228,7 +227,7 @@ private static void menuActores() {
                     break;
                 }
 
-                Actores nuevo = new Actores(0, nombre, nacionalidad, sexo);
+                Actor nuevo = new Actor(0, nombre, nacionalidad, sexo);
                 nuevo = actoresDAO.darDeAlta(nuevo);
                 System.out.println("¡Actor guardado con éxito! ID: " + nuevo.getId());
                 break;
@@ -241,7 +240,7 @@ private static void menuActores() {
                 System.out.print("Elija un filtro: ");
                 int filtro = leerOpcion();
 
-                List<Actores> resultados = new ArrayList<>();
+                List<Actor> resultados = new ArrayList<>();
                 if (filtro == 1) {
                     System.out.print("Introduce el nombre a buscar: ");
                     resultados = actoresDAO.buscarPorNombre(sc.nextLine());
@@ -281,9 +280,9 @@ private static void menuActores() {
                 System.out.print("Introduce el ID del actor a modificar: ");
                 int idMod = leerOpcion();
 
-                Optional<Actores> actorOpt = actoresDAO.buscarPorId(idMod);
+                Optional<Actor> actorOpt = actoresDAO.buscarPorId(idMod);
                 if (actorOpt.isPresent()) {
-                    Actores actorMod = actorOpt.get();
+                    Actor actorMod = actorOpt.get();
                     System.out.println("Actor actual: " + actorMod);
 
                     System.out.print("Nuevo nombre (deja en blanco para no cambiar): ");

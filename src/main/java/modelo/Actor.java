@@ -1,16 +1,16 @@
 package modelo;
 
-public class Actores {
+public class Actor {
 
     private int id_actor;
     private String nombre;
     private String nacionalidad;
     private String sexo;
 
-    public Actores() {
+    public Actor() {
     }
 
-    public Actores(int id_actor, String nombre, String nacionalidad, String sexo) {
+    public Actor(int id_actor, String nombre, String nacionalidad, String sexo) {
         this.id_actor = id_actor;
         this.nombre = nombre;
         this.nacionalidad = nacionalidad;
@@ -51,7 +51,7 @@ public class Actores {
 
     @Override
     public String toString() {
-        return "Actores{" +
+        return "Actor{" +
                 "id=" + id_actor +
                 ", nombre='" + nombre + '\'' +
                 ", nacionalidad='" + nacionalidad + '\'' +
