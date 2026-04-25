@@ -2,7 +2,7 @@ package modelo;
 
 import java.time.LocalDate;
 
-public class Peliculas {
+public class Pelicula {
     private int id;
     private String titulo;
     private String nacionalidad;
@@ -10,11 +10,11 @@ public class Peliculas {
     private LocalDate fecha;
     private int idDirector;
 
-    public Peliculas() {
+    public Pelicula() {
     }
 
-    public Peliculas(int id, String titulo, String nacionalidad, String productora,
-                 LocalDate fecha, int idDirector) {
+    public Pelicula(int id, String titulo, String nacionalidad, String productora,
+                    LocalDate fecha, int idDirector) {
         this.id = id;
         this.titulo = titulo;
         this.nacionalidad = nacionalidad;
@@ -73,7 +73,7 @@ public class Peliculas {
 
     @Override
     public String toString() {
-        return "Peliculas{" +
+        return "Pelicula{" +
                 "id=" + id +
                 ", titulo='" + titulo + '\'' +
                 ", nacionalidad='" + nacionalidad + '\'' +

@@ -1,8 +1,8 @@
 package app;
 
-import dao.PeliculasDAO;
-import dao.PeliculasDAOImpl;
-import modelo.Peliculas;
+import dao.PeliculaDAO;
+import dao.PeliculaDAOImpl;
+import modelo.Pelicula;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -15,7 +15,7 @@ import java.util.Scanner;
 
 public class Main {
     private static Scanner sc = new Scanner(System.in);
-    private static PeliculasDAO peliculasDAO;
+    private static PeliculaDAO peliculasDAO;
 
     public static void main(String[] args) {
         String url = "jdbc:mysql://localhost:3306/videoclub";
@@ -24,7 +24,7 @@ public class Main {
 
         try (Connection connection = DriverManager.getConnection(url, user, pass)) {
             // Inicializamos el DAO
-            peliculasDAO = new PeliculasDAOImpl(connection);
+            peliculasDAO = new PeliculaDAOImpl(connection);
 
             boolean salirGeneral = false;
             int opcion;
@@ -104,7 +104,7 @@ public class Main {
                     System.out.print("Introduce el ID del director: ");
                     int idDirector = leerOpcion();
 
-                    Peliculas nueva = new Peliculas(0, titulo, nacionalidad, productora, fecha, idDirector);
+                    Pelicula nueva = new Pelicula(0, titulo, nacionalidad, productora, fecha, idDirector);
                     peliculasDAO.darDeAlta(nueva);
                     System.out.println("¡Película guardada con éxito! ID: " + nueva.getId());
                     break;
@@ -117,7 +117,7 @@ public class Main {
                     System.out.println("4. Listar todas");
                     System.out.print("Seleccione: ");
                     int sub = leerOpcion();
-                    List<Peliculas> lista = new ArrayList<>();
+                    List<Pelicula> lista = new ArrayList<>();
 
                     if (sub == 1) {
                         System.out.print("Título: ");
@@ -142,10 +142,10 @@ public class Main {
                 case 3:
                     System.out.print("ID de la película a modificar: ");
                     int idMod = leerOpcion();
-                    Optional<Peliculas> optPeli = peliculasDAO.buscarPorId(idMod);
+                    Optional<Pelicula> optPeli = peliculasDAO.buscarPorId(idMod);
 
                     if (optPeli.isPresent()) {
-                        Peliculas p = optPeli.get();
+                        Pelicula p = optPeli.get();
                         System.out.println("Modificando: " + p.getTitulo());
 
                         System.out.print("Nuevo título: ");

@@ -1,6 +1,6 @@
 package dao;
 
-import modelo.Peliculas;
+import modelo.Pelicula;
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -8,16 +8,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class PeliculasDAOImpl implements PeliculasDAO {
+public class PeliculaDAOImpl implements PeliculaDAO {
 
     private final Connection connection;
 
-    public PeliculasDAOImpl(Connection connection) {
+    public PeliculaDAOImpl(Connection connection) {
         this.connection = connection;
     }
 
     @Override
-    public Peliculas darDeAlta(Peliculas pelicula) {
+    public Pelicula darDeAlta(Pelicula pelicula) {
         String sql = "INSERT INTO peliculas (titulo, nacionalidad, productora, fecha, idDirector) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, pelicula.getTitulo());
@@ -39,7 +39,7 @@ public class PeliculasDAOImpl implements PeliculasDAO {
     }
 
     @Override
-    public Optional<Peliculas> buscarPorId(int id) {
+    public Optional<Pelicula> buscarPorId(int id) {
         String sql = "SELECT titulo, nacionalidad, productora, fecha, idDirector FROM movie WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
@@ -55,7 +55,7 @@ public class PeliculasDAOImpl implements PeliculasDAO {
     }
 
     @Override
-    public List<Peliculas> buscarPorTitulo(String titulo) {
+    public List<Pelicula> buscarPorTitulo(String titulo) {
         String sql = "SELECT id, titulo, nacionalidad, productora, fecha, id_director FROM peliculas WHERE titulo = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, titulo);
@@ -66,7 +66,7 @@ public class PeliculasDAOImpl implements PeliculasDAO {
     }
 
     @Override
-    public List<Peliculas> buscarPorNacionalidad(String nacionalidad) {
+    public List<Pelicula> buscarPorNacionalidad(String nacionalidad) {
         String sql = "SELECT id, titulo, nacionalidad, productora, fecha, id_director FROM peliculas WHERE nacionalidad = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, nacionalidad);
@@ -77,7 +77,7 @@ public class PeliculasDAOImpl implements PeliculasDAO {
     }
 
     @Override
-    public List<Peliculas> buscarPorProductora(String productora) {
+    public List<Pelicula> buscarPorProductora(String productora) {
         String sql = "SELECT id, titulo, nacionalidad, productora, fecha, id_director FROM peliculas WHERE productora = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, productora);
@@ -88,7 +88,7 @@ public class PeliculasDAOImpl implements PeliculasDAO {
     }
 
     @Override
-    public List<Peliculas> listarTodas() {
+    public List<Pelicula> listarTodas() {
         String sql = "SELECT id, titulo, nacionalidad, productora, fecha, id_director FROM peliculas";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             return mapearFilas(stmt.executeQuery());
@@ -98,7 +98,7 @@ public class PeliculasDAOImpl implements PeliculasDAO {
     }
 
     @Override
-    public Peliculas actualizar(Peliculas pelicula) {
+    public Pelicula actualizar(Pelicula pelicula) {
         String sql = "UPDATE peliculas SET titulo = ?, nacionalidad = ?, productora = ?, fecha = ?, id_director = ? WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, pelicula.getTitulo());
@@ -125,8 +125,8 @@ public class PeliculasDAOImpl implements PeliculasDAO {
         }
     }
 
-    private Peliculas mapearFila(ResultSet rs) throws SQLException {
-        return new Peliculas(
+    private Pelicula mapearFila(ResultSet rs) throws SQLException {
+        return new Pelicula(
                 rs.getInt("id"),
                 rs.getString("titulo"),
                 rs.getString("nacionalidad"),
@@ -136,8 +136,8 @@ public class PeliculasDAOImpl implements PeliculasDAO {
         );
     }
 
-    private List<Peliculas> mapearFilas(ResultSet rs) throws SQLException {
-        List<Peliculas> peliculas = new ArrayList<>();
+    private List<Pelicula> mapearFilas(ResultSet rs) throws SQLException {
+        List<Pelicula> peliculas = new ArrayList<>();
         try (rs) {
             while (rs.next()) {
                 peliculas.add(mapearFila(rs));
