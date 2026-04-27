@@ -97,9 +97,10 @@ videoclub/
 
 Listado de integrantes con su rol en el proyecto.
 
-  Nombre                |                        Rol 
-  Sergio Ojeda          |                       Jefe de Proyecto 
-  Antonio Béltrán       |                       Desarrollador Backend 
-  Daniel Del Toro       |                       Desarrollador de Interfaz 
-  Juan María Alanis     |                       Diseñador de Base de Datos 
-  Antonio Pérez         |                       Responsable de Calidad y Documentación 
+| Nombre | Rol |
+|---|---|
+| Sergio Ojeda | Jefe de Proyecto |
+| Antonio Béltrán | Desarrollador Backend |
+| Daniel Del Toro | Desarrollador de Interfaz |
+| Juan María Alanis | Diseñador de Base de Datos |
+| Antonio Pérez | Responsable de Calidad y Documentación |
