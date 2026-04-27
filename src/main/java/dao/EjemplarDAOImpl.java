@@ -7,14 +7,34 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Implementación JDBC de la interfaz {@link EjemplarDAO}.
+ * Proporciona el acceso a datos de ejemplares mediante consultas SQL
+ * sobre una conexión JDBC a la base de datos del videoclub.
+ *
+ * @author Antonio Pérez, Antonio Béltran, Daniel Del Toro, Sergio Ojeda y Juan María Alanis
+ * @version 1.0
+ * @see EjemplarDAO
+ * @see EjemplarDAOException
+ */
 public class EjemplarDAOImpl implements EjemplarDAO {
 
+    /** Conexión JDBC a la base de datos. */
     private final Connection connection;
 
+    /**
+     * Crea una nueva instancia de {@code EjemplarDAOImpl} con la conexión proporcionada.
+     *
+     * @param connection la conexión JDBC a la base de datos
+     */
     public EjemplarDAOImpl(Connection connection) {
         this.connection = connection;
     }
 
+    /**
+     *
+     * @throws EjemplarDAOException si ocurre un error de acceso a la base de datos
+     */
     @Override
     public Ejemplar darDeAlta(Ejemplar ejemplar) {
         String sql = "INSERT INTO ejemplar (id_pelicula, estado) VALUES (?, ?)";
@@ -33,6 +53,10 @@ public class EjemplarDAOImpl implements EjemplarDAO {
         }
     }
 
+    /**
+     *
+     * @throws EjemplarDAOException si ocurre un error de acceso a la base de datos
+     */
     @Override
     public Optional<Ejemplar> buscarPorId(int num_ejemplar) {
         String sql = "SELECT num_ejemplar, id_pelicula, estado FROM ejemplar WHERE num_ejemplar = ?";
@@ -47,6 +71,10 @@ public class EjemplarDAOImpl implements EjemplarDAO {
         }
     }
 
+    /**
+     *
+     * @throws EjemplarDAOException si ocurre un error de acceso a la base de datos
+     */
     @Override
     public List<Ejemplar> buscarPorPelicula(int id_pelicula) {
         String sql = "SELECT num_ejemplar, id_pelicula, estado FROM ejemplar WHERE id_pelicula = ?";
@@ -58,6 +86,10 @@ public class EjemplarDAOImpl implements EjemplarDAO {
         }
     }
 
+    /**
+     *
+     * @throws EjemplarDAOException si ocurre un error de acceso a la base de datos
+     */
     @Override
     public Ejemplar actualizarEstado(int num_ejemplar, EstadoConservacion nuevoEstado) {
         String sql = "UPDATE ejemplar SET estado = ? WHERE num_ejemplar = ?";
@@ -72,6 +104,10 @@ public class EjemplarDAOImpl implements EjemplarDAO {
         }
     }
 
+    /**
+     *
+     * @throws EjemplarDAOException si el ejemplar está alquilado o hay un error de acceso a datos
+     */
     @Override
     public boolean eliminarPorId(int num_ejemplar) {
         // Comprobamos primero que no esté alquilado
@@ -95,6 +131,13 @@ public class EjemplarDAOImpl implements EjemplarDAO {
         }
     }
 
+    /**
+     * Mapea una fila del {@link ResultSet} a un objeto {@link Ejemplar}.
+     *
+     * @param rs el ResultSet posicionado en la fila a mapear
+     * @return el ejemplar mapeado
+     * @throws SQLException si ocurre un error al leer los datos del ResultSet
+     */
     private Ejemplar mapearFila(ResultSet rs) throws SQLException {
         return new Ejemplar(
                 rs.getInt("num_ejemplar"),
@@ -103,6 +146,13 @@ public class EjemplarDAOImpl implements EjemplarDAO {
         );
     }
 
+    /**
+     * Mapea todas las filas de un {@link ResultSet} a una lista de objetos {@link Ejemplar}.
+     *
+     * @param rs el ResultSet a recorrer
+     * @return lista de ejemplares mapeados
+     * @throws SQLException si ocurre un error al leer los datos del ResultSet
+     */
     private List<Ejemplar> mapearFilas(ResultSet rs) throws SQLException {
         List<Ejemplar> ejemplares = new ArrayList<>();
         try (rs) {

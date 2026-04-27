@@ -25,87 +25,141 @@ import modelo.Socio;
 
 import modelo.Alquiler;
 
+import conexionBD.ConexionBD;
+
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
+/**
+ * Clase principal del Sistema de Gestión de Videoclub.
+ *
+ * Proporciona una interfaz de consola interactiva para gestionar las distintas
+ * entidades del videoclub: películas, actores, directores, ejemplares, socios
+ * y alquileres. Se conecta a una base de datos MySQL y delega las operaciones
+ * de persistencia en los correspondientes objetos DAO.
+ *
+ * @author Antonio Pérez, Antonio Béltran, Daniel Del Toro, Sergio Ojeda y Juan María Alanis
+ * @version 1.0
+ */
 public class Main {
+
+    /**
+     * Scanner compartido para la lectura de entrada del usuario por consola.
+     */
     private static final Scanner sc = new Scanner(System.in);
+
+    /**
+     * DAO para operaciones CRUD sobre películas.
+     */
     private static PeliculaDAO peliculasDAO;
+
+    /**
+     * DAO para operaciones CRUD sobre actores.
+     */
     private static ActorDAO actoresDAO;
+
+    /**
+     * DAO para operaciones CRUD sobre directores.
+     */
     private static DirectorDAO directorDAO;
+
+    /**
+     * DAO para operaciones CRUD sobre ejemplares.
+     */
     private static EjemplarDAO ejemplarDAO;
+
+    /**
+     * DAO para operaciones CRUD sobre socios.
+     */
     private static SocioDAO socioDAO;
+
+    /**
+     * DAO para operaciones CRUD sobre alquileres.
+     */
     private static AlquilerDAO alquilerDAO;
 
+    /**
+     * Punto de entrada de la aplicación.
+     * Establece la conexión con la base de datos SQLite del videoclub,
+     * inicializa todos los objetos DAO y presenta el menú principal
+     * al usuario. El bucle principal se mantiene activo hasta que el
+     * usuario selecciona la opción de salir.
+     *
+     * @param args argumentos de línea de comandos (no utilizados)
+     */
     public static void main(String[] args) {
-        String url = "jdbc:mysql://localhost:3306/videoclub";
-        String user = "root";
-        String pass = "tu_password";
+        ConexionBD conexionBD = new ConexionBD();
+        conexionBD.inicializarBaseDatos();
+        Connection connection = conexionBD.obtenerConexion();
 
-        try (Connection connection = DriverManager.getConnection(url, user, pass)) {
-            // Inicializamos el DAO
-            peliculasDAO = new PeliculaDAOImpl(connection);
-            actoresDAO = new ActorDAOImpl(connection);
-            directorDAO = new DirectorDAOImpl(connection);
-            ejemplarDAO = new EjemplarDAOImpl(connection);
-            socioDAO = new SocioDAOImpl(connection);
-            alquilerDAO = new AlquilerDAOImpl(connection);
+        // Inicializamos los DAOs
+        peliculasDAO = new PeliculaDAOImpl(connection);
+        actoresDAO = new ActorDAOImpl(connection);
+        directorDAO = new DirectorDAOImpl(connection);
+        ejemplarDAO = new EjemplarDAOImpl(connection);
+        socioDAO = new SocioDAOImpl(connection);
+        alquilerDAO = new AlquilerDAOImpl(connection);
 
-            boolean salirGeneral = false;
-            int opcion;
+        boolean salirGeneral = false;
+        int opcion;
 
-            while (!salirGeneral) {
-                System.out.println("=======================================");
-                System.out.println("   SISTEMA DE GESTIÓN DE VIDEOCLUB");
-                System.out.println("=======================================");
-                System.out.println("1. Gestión de Películas");
-                System.out.println("2. Gestión de Actores");
-                System.out.println("3. Gestión de Directores");
-                System.out.println("4. Gestión de Ejemplares");
-                System.out.println("5. Gestión de Socios");
-                System.out.println("6. Gestión de Alquileres");
-                System.out.println("7. Salir del Programa");
-                System.out.print("Seleccione un módulo: ");
+        while (!salirGeneral) {
+            System.out.println("=======================================");
+            System.out.println("   SISTEMA DE GESTIÓN DE VIDEOCLUB");
+            System.out.println("=======================================");
+            System.out.println("1. Gestión de Películas");
+            System.out.println("2. Gestión de Actores");
+            System.out.println("3. Gestión de Directores");
+            System.out.println("4. Gestión de Ejemplares");
+            System.out.println("5. Gestión de Socios");
+            System.out.println("6. Gestión de Alquileres");
+            System.out.println("7. Salir del Programa");
+            System.out.print("Seleccione un módulo: ");
 
-                opcion = leerOpcion();
+            opcion = leerOpcion();
 
-                switch (opcion) {
-                     case 1: menuPeliculas();
-                     break;
-                    case 2: menuActores();
-                        break;
-                    case 3:
-                        menuDirectores();
-                        break;
-                    case 4:
-                        menuEjemplares();
-                        break;
-                    case 5:
-                        menuSocios();
-                        break;
-                    case 6:
-                        menuAlquileres();
-                        break;
-                    case 7:
-                        salirGeneral = true;
-                        break;
-                    default:
-                        System.out.println("Opción no válida.");
-                }
+            switch (opcion) {
+                case 1: menuPeliculas();
+                    break;
+                case 2: menuActores();
+                    break;
+                case 3:
+                    menuDirectores();
+                    break;
+                case 4:
+                    menuEjemplares();
+                    break;
+                case 5:
+                    menuSocios();
+                    break;
+                case 6:
+                    menuAlquileres();
+                    break;
+                case 7:
+                    salirGeneral = true;
+                    break;
+                default:
+                    System.out.println("Opción no válida.");
             }
-        } catch (SQLException e) {
-            System.out.println("Error al conectar [" + e.getErrorCode() + "]: " + e.getMessage());
         }
+
+        conexionBD.cerrar();
         System.out.println("Programa finalizado. ¡Hasta pronto!");
         sc.close();
     }
 
+    /**
+     * Lee un número entero válido desde la entrada estándar.
+     *
+     * Solicita repetidamente al usuario hasta que se introduce un valor
+     * numérico entero. Tras leerlo, limpia el buffer del {@link Scanner}.
+     *
+     * @return el número entero introducido por el usuario
+     */
     private static int leerOpcion() {
         while (!sc.hasNextInt()) {
             System.out.print("Por favor, introduce un número válido: ");
@@ -115,122 +169,141 @@ public class Main {
         sc.nextLine(); // Limpiamos el buffer
         return opt;
     }
-        private static void menuPeliculas() {
-            boolean volver = false;
+    /**
+     * Muestra y gestiona el submenú de gestión de películas.
+     * Permite al usuario realizar las siguientes operaciones:
+     * Alta de una nueva película
+     * Consulta y búsqueda por título, nacionalidad o productora
+     * Modificación de los datos de una película existente
+     * Eliminación de una película por su ID
+     * El bucle se mantiene activo hasta que el usuario elige volver al menú principal
+     */
+    private static void menuPeliculas() {
+        boolean volver = false;
 
-            while (!volver) {
-                System.out.println("--- 3.1 GESTIÓN DE PELÍCULAS ---");
-                System.out.println("1. Alta de nueva película");
-                System.out.println("2. Consultar y buscar (Título/Nac./Prod.)");
-                System.out.println("3. Modificar datos");
-                System.out.println("4. Eliminar película");
-                System.out.println("5. Volver al menú principal");
-                System.out.print("Seleccione una opción: ");
+        while (!volver) {
+            System.out.println("--- 3.1 GESTIÓN DE PELÍCULAS ---");
+            System.out.println("1. Alta de nueva película");
+            System.out.println("2. Consultar y buscar (Título/Nac./Prod.)");
+            System.out.println("3. Modificar datos");
+            System.out.println("4. Eliminar película");
+            System.out.println("5. Volver al menú principal");
+            System.out.print("Seleccione una opción: ");
 
-                switch (leerOpcion()) {
-                    case 1:
-                        System.out.println("-> Ejecutando: Alta de nueva película...");
-                        System.out.print("Introduce el título: ");
-                        String titulo = sc.nextLine();
-                        System.out.print("Introduce la nacionalidad: ");
-                        String nacionalidad = sc.nextLine();
-                        System.out.print("Introduce la productora: ");
-                        String productora = sc.nextLine();
-                        System.out.print("Introduce la fecha (AAAA-MM-DD): ");
-                        LocalDate fecha = LocalDate.parse(sc.nextLine());
-                        System.out.print("Introduce el ID del director: ");
-                        int idDirector = leerOpcion();
+            switch (leerOpcion()) {
+                case 1:
+                    System.out.println("-> Ejecutando: Alta de nueva película...");
+                    System.out.print("Introduce el título: ");
+                    String titulo = sc.nextLine();
+                    System.out.print("Introduce la nacionalidad: ");
+                    String nacionalidad = sc.nextLine();
+                    System.out.print("Introduce la productora: ");
+                    String productora = sc.nextLine();
+                    System.out.print("Introduce la fecha (AAAA-MM-DD): ");
+                    LocalDate fecha = LocalDate.parse(sc.nextLine());
+                    System.out.print("Introduce el ID del director: ");
+                    int idDirector = leerOpcion();
 
-                        Pelicula nueva = new Pelicula(0, titulo, nacionalidad, productora, fecha, idDirector);
-                        peliculasDAO.darDeAlta(nueva);
-                        System.out.println("¡Película guardada con éxito! ID: " + nueva.getId());
-                        break;
+                    Pelicula nueva = new Pelicula(0, titulo, nacionalidad, productora, fecha, idDirector);
+                    peliculasDAO.darDeAlta(nueva);
+                    System.out.println("¡Película guardada con éxito! ID: " + nueva.getId());
+                    break;
 
-                    case 2:
-                        System.out.println("--- CONSULTA Y BÚSQUEDA ---");
-                        System.out.println("1. Buscar por Título");
-                        System.out.println("2. Buscar por Nacionalidad");
-                        System.out.println("3. Buscar por Productora");
-                        System.out.println("4. Listar todas");
-                        System.out.print("Seleccione: ");
-                        int sub = leerOpcion();
-                        List<Pelicula> lista = new ArrayList<>();
+                case 2:
+                    System.out.println("--- CONSULTA Y BÚSQUEDA ---");
+                    System.out.println("1. Buscar por Título");
+                    System.out.println("2. Buscar por Nacionalidad");
+                    System.out.println("3. Buscar por Productora");
+                    System.out.println("4. Listar todas");
+                    System.out.print("Seleccione: ");
+                    int sub = leerOpcion();
+                    List<Pelicula> lista = new ArrayList<>();
 
-                        if (sub == 1) {
-                            System.out.print("Título: ");
-                            lista = peliculasDAO.buscarPorTitulo(sc.nextLine());
-                        } else if (sub == 2) {
-                            System.out.print("Nacionalidad: ");
-                            lista = peliculasDAO.buscarPorNacionalidad(sc.nextLine());
-                        } else if (sub == 3) {
-                            System.out.print("Productora: ");
-                            lista = peliculasDAO.buscarPorProductora(sc.nextLine());
-                        } else if (sub == 4) {
-                            lista = peliculasDAO.listarTodas();
-                        }
+                    if (sub == 1) {
+                        System.out.print("Título: ");
+                        lista = peliculasDAO.buscarPorTitulo(sc.nextLine());
+                    } else if (sub == 2) {
+                        System.out.print("Nacionalidad: ");
+                        lista = peliculasDAO.buscarPorNacionalidad(sc.nextLine());
+                    } else if (sub == 3) {
+                        System.out.print("Productora: ");
+                        lista = peliculasDAO.buscarPorProductora(sc.nextLine());
+                    } else if (sub == 4) {
+                        lista = peliculasDAO.listarTodas();
+                    }
 
-                        if (lista.isEmpty()) {
-                            System.out.println("No se han encontrado resultados.");
+                    if (lista.isEmpty()) {
+                        System.out.println("No se han encontrado resultados.");
+                    } else {
+                        lista.forEach(System.out::println);
+                    }
+                    break;
+
+                case 3:
+                    System.out.print("ID de la película a modificar: ");
+                    int idMod = leerOpcion();
+                    Optional<Pelicula> optPeli = peliculasDAO.buscarPorId(idMod);
+
+                    if (optPeli.isPresent()) {
+                        Pelicula p = optPeli.get();
+                        System.out.println("Modificando: " + p.getTitulo());
+
+                        System.out.print("Nuevo título: ");
+                        String t = sc.nextLine();
+                        if (!t.isEmpty()) p.setTitulo(t);
+
+                        System.out.print("Nueva nacionalidad: ");
+                        String n = sc.nextLine();
+                        if (!n.isEmpty()) p.setNacionalidad(n);
+
+                        System.out.print("Nueva productora: ");
+                        String pr = sc.nextLine();
+                        if (!pr.isEmpty()) p.setProductora(pr);
+
+                        System.out.print("Nuevo ID Director (0 para omitir): ");
+                        int idD = leerOpcion();
+                        if (idD != 0) p.setIdDirector(idD);
+
+                        peliculasDAO.actualizar(p);
+                        System.out.println("Película actualizada con éxito.");
+                    } else {
+                        System.out.println("Error: No existe película con ID " + idMod);
+                    }
+                    break;
+
+                case 4:
+                    System.out.print("ID de la película a eliminar: ");
+                    int idEli = leerOpcion();
+                    System.out.print("¿Seguro que desea eliminar? (Si/No): ");
+                    if (sc.nextLine().equals("Si")) {
+                        if (peliculasDAO.eliminarPorId(idEli)) {
+                            System.out.println("Película eliminada.");
                         } else {
-                            lista.forEach(System.out::println);
+                            System.out.println("No se pudo eliminar (ID no encontrado).");
                         }
-                        break;
+                    }
+                    break;
 
-                    case 3:
-                        System.out.print("ID de la película a modificar: ");
-                        int idMod = leerOpcion();
-                        Optional<Pelicula> optPeli = peliculasDAO.buscarPorId(idMod);
+                case 5:
+                    volver = true;
+                    break;
 
-                        if (optPeli.isPresent()) {
-                            Pelicula p = optPeli.get();
-                            System.out.println("Modificando: " + p.getTitulo());
-
-                            System.out.print("Nuevo título: ");
-                            String t = sc.nextLine();
-                            if (!t.isEmpty()) p.setTitulo(t);
-
-                            System.out.print("Nueva nacionalidad: ");
-                            String n = sc.nextLine();
-                            if (!n.isEmpty()) p.setNacionalidad(n);
-
-                            System.out.print("Nueva productora: ");
-                            String pr = sc.nextLine();
-                            if (!pr.isEmpty()) p.setProductora(pr);
-
-                            System.out.print("Nuevo ID Director (0 para omitir): ");
-                            int idD = leerOpcion();
-                            if (idD != 0) p.setIdDirector(idD);
-
-                            peliculasDAO.actualizar(p);
-                            System.out.println("Película actualizada con éxito.");
-                        } else {
-                            System.out.println("Error: No existe película con ID " + idMod);
-                        }
-                        break;
-
-                    case 4:
-                        System.out.print("ID de la película a eliminar: ");
-                        int idEli = leerOpcion();
-                        System.out.print("¿Seguro que desea eliminar? (Si/No): ");
-                        if (sc.nextLine().equals("Si")) {
-                            if (peliculasDAO.eliminarPorId(idEli)) {
-                                System.out.println("Película eliminada.");
-                            } else {
-                                System.out.println("No se pudo eliminar (ID no encontrado).");
-                            }
-                        }
-                        break;
-
-                    case 5:
-                        volver = true;
-                        break;
-
-                    default:
-                        System.out.println("Opción no válida.");
-                }
+                default:
+                    System.out.println("Opción no válida.");
             }
         }
+    }
 
+    /**
+     * Muestra y gestiona el submenú de gestión de actores.
+     * Permite al usuario realizar las siguientes operaciones:
+     *   Registro de un nuevo actor
+     *   Consulta y filtrado de actores por nombre o nacionalidad
+     *   Asociación de un actor a una película con un rol determinado
+     *   Modificación de los datos de un actor existente
+     *   Eliminación de un actor o desvinculación de una película
+     * El bucle se mantiene activo hasta que el usuario elige volver al menú principal
+     */
     private static void menuActores() {
         boolean volver = false;
 
@@ -372,6 +445,16 @@ public class Main {
         }
     }
 
+    /**
+     * Muestra y gestiona el submenú de gestión de directores.
+     * Permite al usuario realizar las siguientes operaciones:
+     * Registro de un nuevo director
+     * Consulta y filtrado de directores por nombre o nacionalidad
+     * Asignación de un director a una película
+     * Modificación de los datos de un director existente
+     * Eliminación de un director por su ID
+     * El bucle se mantiene activo hasta que el usuario elige volver al menú principal.
+     */
     private static void menuDirectores() {
         boolean volver = false;
 
@@ -496,6 +579,17 @@ public class Main {
         }
     }
 
+    /**
+     * Muestra y gestiona el submenú de gestión de ejemplares.
+     * Permite al usuario realizar las siguientes operaciones:
+     * Alta de un nuevo ejemplar asociado a una película
+     * Consulta de los ejemplares de una película concreta
+     * Actualización del estado de conservación de un ejemplar
+     * Eliminación de un ejemplar por su número</li>
+     * El bucle se mantiene activo hasta que el usuario elige volver al menú principal.
+     *
+     * @see modelo.EstadoConservacion
+     */
     private static void menuEjemplares() {
         boolean volver = false;
 
@@ -606,6 +700,15 @@ public class Main {
         }
     }
 
+    /**
+     * Muestra y gestiona el submenú de gestión de socios.
+     * Permite al usuario realizar las siguientes operaciones:
+     * Registro de un nuevo socio (con validación de socio aval)
+     * Consulta y filtrado de socios por DNI, nombre o teléfono
+     * Modificación de los datos de un socio existente
+     * Eliminación de un socio por su DNI
+     * El bucle se mantiene activo hasta que el usuario elige volver al menú principal.
+     */
     private static void menuSocios() {
         boolean volver = false;
 
@@ -763,6 +866,15 @@ public class Main {
         }
     }
 
+    /**
+     * Muestra y gestiona el submenú de gestión de alquileres.
+     * Permite al usuario realizar las siguientes operaciones:
+     * Registro de un nuevo alquiler de un ejemplar a un socio
+     * Consulta de alquileres activos, histórico, por socio o por película
+     * Registro de la devolución de un alquiler
+     * Cancelación de un alquiler existente
+     * El bucle se mantiene activo hasta que el usuario elige volver al menú principal.
+     */
     private static void menuAlquileres() {
         boolean volver = false;
 

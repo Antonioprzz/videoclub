@@ -7,14 +7,34 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Implementación JDBC de la interfaz {@link AlquilerDAO}.
+ * Proporciona el acceso a datos de alquileres mediante consultas SQL
+ * sobre una conexión JDBC a la base de datos del videoclub.
+ *
+ * @author Antonio Pérez, Antonio Béltran, Daniel Del Toro, Sergio Ojeda y Juan María Alanis
+ * @version 1.0
+ * @see AlquilerDAO
+ * @see AlquilerDAOException
+ */
 public class AlquilerDAOImpl implements AlquilerDAO {
 
+    /** Conexión JDBC a la base de datos. */
     private final Connection connection;
 
+    /**
+     * Crea una nueva instancia de {@code AlquilerDAOImpl} con la conexión proporcionada.
+     *
+     * @param connection la conexión JDBC a la base de datos
+     */
     public AlquilerDAOImpl(Connection connection) {
         this.connection = connection;
     }
 
+    /**
+     *
+     * @throws AlquilerDAOException si el ejemplar ya está alquilado o hay un error de acceso a datos
+     */
     @Override
     public Alquiler registrarAlquiler(Alquiler alquiler) {
         // Comprobamos que el ejemplar no esté ya alquilado
@@ -47,6 +67,10 @@ public class AlquilerDAOImpl implements AlquilerDAO {
         }
     }
 
+    /**
+     *
+     * @throws AlquilerDAOException si ocurre un error de acceso a la base de datos
+     */
     @Override
     public Optional<Alquiler> buscarPorId(int id_alquiler) {
         String sql = "SELECT id_alquiler, num_ejemplar, dni_socio, fecha_inicio, fecha_devolucion FROM alquiler WHERE id_alquiler = ?";
@@ -61,6 +85,10 @@ public class AlquilerDAOImpl implements AlquilerDAO {
         }
     }
 
+    /**
+     *
+     * @throws AlquilerDAOException si ocurre un error de acceso a la base de datos
+     */
     @Override
     public List<Alquiler> listarActivos() {
         String sql = "SELECT id_alquiler, num_ejemplar, dni_socio, fecha_inicio, fecha_devolucion FROM alquiler WHERE fecha_devolucion IS NULL";
@@ -71,6 +99,10 @@ public class AlquilerDAOImpl implements AlquilerDAO {
         }
     }
 
+    /**
+     *
+     * @throws AlquilerDAOException si ocurre un error de acceso a la base de datos
+     */
     @Override
     public List<Alquiler> listarHistorico() {
         String sql = "SELECT id_alquiler, num_ejemplar, dni_socio, fecha_inicio, fecha_devolucion FROM alquiler WHERE fecha_devolucion IS NOT NULL";
@@ -81,6 +113,10 @@ public class AlquilerDAOImpl implements AlquilerDAO {
         }
     }
 
+    /**
+     *
+     * @throws AlquilerDAOException si ocurre un error de acceso a la base de datos
+     */
     @Override
     public List<Alquiler> buscarPorSocio(String dni_socio) {
         String sql = "SELECT id_alquiler, num_ejemplar, dni_socio, fecha_inicio, fecha_devolucion FROM alquiler WHERE dni_socio = ?";
@@ -92,6 +128,10 @@ public class AlquilerDAOImpl implements AlquilerDAO {
         }
     }
 
+    /**
+     *
+     * @throws AlquilerDAOException si ocurre un error de acceso a la base de datos
+     */
     @Override
     public List<Alquiler> buscarPorPelicula(int id_pelicula) {
         String sql = "SELECT a.id_alquiler, a.num_ejemplar, a.dni_socio, a.fecha_inicio, a.fecha_devolucion " +
@@ -105,6 +145,10 @@ public class AlquilerDAOImpl implements AlquilerDAO {
         }
     }
 
+    /**
+     *
+     * @throws AlquilerDAOException si el alquiler no existe, ya fue devuelto, o hay un error de acceso a datos
+     */
     @Override
     public Alquiler registrarDevolucion(int id_alquiler, LocalDate fechaDevolucion) {
         String sql = "UPDATE alquiler SET fecha_devolucion = ? WHERE id_alquiler = ? AND fecha_devolucion IS NULL";
@@ -122,6 +166,10 @@ public class AlquilerDAOImpl implements AlquilerDAO {
         }
     }
 
+    /**
+     *
+     * @throws AlquilerDAOException si ocurre un error de acceso a la base de datos
+     */
     @Override
     public boolean cancelarAlquiler(int id_alquiler) {
         String sql = "DELETE FROM alquiler WHERE id_alquiler = ?";
@@ -133,6 +181,13 @@ public class AlquilerDAOImpl implements AlquilerDAO {
         }
     }
 
+    /**
+     * Mapea una fila del {@link ResultSet} a un objeto {@link Alquiler}.
+     *
+     * @param rs el ResultSet posicionado en la fila a mapear
+     * @return el alquiler mapeado
+     * @throws SQLException si ocurre un error al leer los datos del ResultSet
+     */
     private Alquiler mapearFila(ResultSet rs) throws SQLException {
         Date fechaDev = rs.getDate("fecha_devolucion");
         return new Alquiler(
@@ -144,6 +199,13 @@ public class AlquilerDAOImpl implements AlquilerDAO {
         );
     }
 
+    /**
+     * Mapea todas las filas de un {@link ResultSet} a una lista de objetos {@link Alquiler}.
+     *
+     * @param rs el ResultSet a recorrer
+     * @return lista de alquileres mapeados
+     * @throws SQLException si ocurre un error al leer los datos del ResultSet
+     */
     private List<Alquiler> mapearFilas(ResultSet rs) throws SQLException {
         List<Alquiler> alquileres = new ArrayList<>();
         try (rs) {

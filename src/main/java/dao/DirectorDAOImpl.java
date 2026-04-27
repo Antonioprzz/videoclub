@@ -6,14 +6,36 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Implementación JDBC de la interfaz {@link DirectorDAO}.
+ * Proporciona el acceso a datos de directores mediante consultas SQL
+ * sobre una conexión JDBC a la base de datos del videoclub.
+ *
+ * @author Antonio Pérez, Antonio Béltran, Daniel Del Toro, Sergio Ojeda y Juan María Alanis
+ * @version 1.0
+ * @see DirectorDAO
+ * @see DirectorDAOException
+ */
 public class DirectorDAOImpl implements DirectorDAO {
 
+    /**
+     * Conexión JDBC a la base de datos.
+     */
     private final Connection connection;
 
+    /**
+     * Crea una nueva instancia de {@code DirectorDAOImpl} con la conexión proporcionada.
+     *
+     * @param connection la conexión JDBC a la base de datos
+     */
     public DirectorDAOImpl(Connection connection) {
         this.connection = connection;
     }
 
+    /**
+     *
+     * @throws DirectorDAOException si ocurre un error de acceso a la base de datos
+     */
     @Override
     public Director darDeAlta(Director director) {
         String sql = "INSERT INTO director (nombre, nacionalidad) VALUES (?, ?)";
@@ -32,6 +54,10 @@ public class DirectorDAOImpl implements DirectorDAO {
         }
     }
 
+    /**
+     *
+     * @throws DirectorDAOException si ocurre un error de acceso a la base de datos
+     */
     @Override
     public Optional<Director> buscarPorId(int id_director) {
         String sql = "SELECT id_director, nombre, nacionalidad FROM director WHERE id_director = ?";
@@ -46,6 +72,10 @@ public class DirectorDAOImpl implements DirectorDAO {
         }
     }
 
+    /**
+     *
+     * @throws DirectorDAOException si ocurre un error de acceso a la base de datos
+     */
     @Override
     public List<Director> buscarPorNombre(String nombre) {
         String sql = "SELECT id_director, nombre, nacionalidad FROM director WHERE nombre = ?";
@@ -57,6 +87,10 @@ public class DirectorDAOImpl implements DirectorDAO {
         }
     }
 
+    /**
+     *
+     * @throws DirectorDAOException si ocurre un error de acceso a la base de datos
+     */
     @Override
     public List<Director> buscarPorNacionalidad(String nacionalidad) {
         String sql = "SELECT id_director, nombre, nacionalidad FROM director WHERE nacionalidad = ?";
@@ -68,6 +102,10 @@ public class DirectorDAOImpl implements DirectorDAO {
         }
     }
 
+    /**
+     *
+     * @throws DirectorDAOException si ocurre un error de acceso a la base de datos
+     */
     @Override
     public List<Director> listarTodos() {
         String sql = "SELECT id_director, nombre, nacionalidad FROM director";
@@ -78,6 +116,10 @@ public class DirectorDAOImpl implements DirectorDAO {
         }
     }
 
+    /**
+     *
+     * @throws DirectorDAOException si ocurre un error de acceso a la base de datos
+     */
     @Override
     public Director actualizar(Director director) {
         String sql = "UPDATE director SET nombre = ?, nacionalidad = ? WHERE id_director = ?";
@@ -92,6 +134,10 @@ public class DirectorDAOImpl implements DirectorDAO {
         }
     }
 
+    /**
+     *
+     * @throws DirectorDAOException si ocurre un error de acceso a la base de datos
+     */
     @Override
     public boolean eliminarPorId(int id_director) {
         String sql = "DELETE FROM director WHERE id_director = ?";
@@ -103,6 +149,10 @@ public class DirectorDAOImpl implements DirectorDAO {
         }
     }
 
+    /**
+     *
+     * @throws DirectorDAOException si ocurre un error de acceso a la base de datos
+     */
     @Override
     public void asignarAPelicula(int idDirector, int idPelicula) {
         String sql = "UPDATE pelicula SET id_director = ? WHERE id_pelicula = ?";
@@ -115,6 +165,13 @@ public class DirectorDAOImpl implements DirectorDAO {
         }
     }
 
+    /**
+     * Mapea una fila del {@link ResultSet} a un objeto {@link Director}.
+     *
+     * @param rs el ResultSet posicionado en la fila a mapear
+     * @return el director mapeado
+     * @throws SQLException si ocurre un error al leer los datos del ResultSet
+     */
     private Director mapearFila(ResultSet rs) throws SQLException {
         return new Director(
                 rs.getInt("id_director"),
@@ -123,6 +180,13 @@ public class DirectorDAOImpl implements DirectorDAO {
         );
     }
 
+    /**
+     * Mapea todas las filas de un {@link ResultSet} a una lista de objetos {@link Director}.
+     *
+     * @param rs el ResultSet a recorrer
+     * @return lista de directores mapeados
+     * @throws SQLException si ocurre un error al leer los datos del ResultSet
+     */
     private List<Director> mapearFilas(ResultSet rs) throws SQLException {
         List<Director> directores = new ArrayList<>();
         try (rs) {
@@ -133,3 +197,4 @@ public class DirectorDAOImpl implements DirectorDAO {
         return directores;
     }
 }
+
