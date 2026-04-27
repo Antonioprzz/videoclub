@@ -46,7 +46,7 @@ public class ConexionBD {
             stmt.execute("PRAGMA foreign_keys=ON");
 
             // Tabla de directores
-            stmt.execute("CREATE TABLE IF NOT EXISTS Director ("
+            stmt.execute("CREATE TABLE IF NOT EXISTS director ("
                     + "Nombre TEXT PRIMARY KEY, "
                     + "Nacionalidad TEXT, "
                     + "Sexo TEXT, "
@@ -54,13 +54,13 @@ public class ConexionBD {
                     + ")");
 
             // Tabla de actores
-            stmt.execute("CREATE TABLE IF NOT EXISTS Actor ("
+            stmt.execute("CREATE TABLE IF NOT EXISTS actor ("
                     + "Nombre TEXT PRIMARY KEY, "
                     + "Nacionalidad TEXT"
                     + ")");
 
             // Tabla de películas
-            stmt.execute("CREATE TABLE IF NOT EXISTS Pelicula ("
+            stmt.execute("CREATE TABLE IF NOT EXISTS pelicula ("
                     + "Titulo TEXT PRIMARY KEY, "
                     + "Fecha TEXT, "
                     + "Nacionalidad TEXT, "
@@ -70,7 +70,7 @@ public class ConexionBD {
                     + ")");
 
             // Tabla Intermedia Pelicula-Actor Reparto (Para el campo Actores[] de cada películo)
-            stmt.execute("CREATE TABLE IF NOT EXISTS reparto ("
+            stmt.execute("CREATE TABLE IF NOT EXISTS actor_pelicula ("
                     + "nombrePelicula TEXT, "
                     + "nombreActor TEXT, "
                     + "PRIMARY KEY (nombrePelicula, nombreActor), "
@@ -79,7 +79,7 @@ public class ConexionBD {
                     + ")");
 
             // Tabla de ejemplares
-            stmt.execute("CREATE TABLE IF NOT EXISTS Ejemplares ("
+            stmt.execute("CREATE TABLE IF NOT EXISTS ejemplar ("
                     + "NumEjemplar INTEGER PRIMARY KEY AUTOINCREMENT, "
                     + "Estado TEXT, "
                     + "nombrePelicula TEXT, "
@@ -87,7 +87,7 @@ public class ConexionBD {
                     + ")");
 
             // Tabla de socios
-            stmt.execute("CREATE TABLE IF NOT EXISTS Socio ("
+            stmt.execute("CREATE TABLE IF NOT EXISTS socio ("
                     + "DNI TEXT PRIMARY KEY, "
                     + "Nombre TEXT NOT NULL, "
                     + "Direccion TEXT, "
@@ -95,7 +95,7 @@ public class ConexionBD {
                     + ")");
 
             // Tabla de alquileres
-            stmt.execute("CREATE TABLE IF NOT EXISTS Alquiler ("
+            stmt.execute("CREATE TABLE IF NOT EXISTS alquiler ("
                     + "CodigoAlquiler INTEGER PRIMARY KEY AUTOINCREMENT, "
                     + "Adquisicion TEXT, "
                     + "Limite TEXT, "
