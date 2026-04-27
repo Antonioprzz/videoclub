@@ -63,7 +63,7 @@ public class PeliculaDAOImpl implements PeliculaDAO {
      */
     @Override
     public Optional<Pelicula> buscarPorId(int id) {
-        String sql = "SELECT titulo, nacionalidad, productora, fecha, idDirector FROM peliculas WHERE id = ?";
+        String sql = "SELECT id, titulo, nacionalidad, productora, fecha, idDirector FROM peliculas WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
             try (ResultSet rs = stmt.executeQuery()) {
