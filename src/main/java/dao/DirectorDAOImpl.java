@@ -155,7 +155,7 @@ public class DirectorDAOImpl implements DirectorDAO {
      */
     @Override
     public void asignarAPelicula(int idDirector, int idPelicula) {
-        String sql = "UPDATE pelicula SET id_director = ? WHERE id_pelicula = ?";
+        String sql = "UPDATE peliculas SET id_director = ? WHERE id_pelicula = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idDirector);
             stmt.setInt(2, idPelicula);

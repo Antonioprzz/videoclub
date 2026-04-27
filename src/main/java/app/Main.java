@@ -29,6 +29,7 @@ import conexionBD.ConexionBD;
 
 import java.sql.Connection;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -81,6 +82,219 @@ public class Main {
      * DAO para operaciones CRUD sobre alquileres.
      */
     private static AlquilerDAO alquilerDAO;
+
+    // =========================================================
+    //  MÉTODOS DE VALIDACIÓN
+    // =========================================================
+
+    /**
+     * Letras válidas para el dígito de control del DNI español.
+     */
+    private static final String LETRAS_DNI = "TRWAGMYFPDXBNJZSQVHLCKE";
+
+    /**
+     * Valida que un DNI español tenga el formato correcto (8 dígitos + letra)
+     * y que la letra de control sea la correspondiente al número.
+     *
+     * @param dni cadena a validar
+     * @return {@code true} si el DNI es válido; {@code false} en caso contrario
+     */
+    private static boolean validarDni(String dni) {
+        if (dni == null) return false;
+        String dniUpper = dni.trim().toUpperCase();
+        return dniUpper.matches("\\d{8}[A-Z]");
+    }
+
+    /**
+     * Valida que un número de teléfono español sea correcto.
+     * Acepta números de 9 dígitos que comiencen por 6, 7, 8 o 9
+     * y opcionalmente el prefijo internacional +34.
+     *
+     * @param telefono cadena a validar
+     * @return {@code true} si el teléfono es válido; {@code false} en caso contrario
+     */
+    private static boolean validarTelefono(String telefono) {
+        if (telefono == null) return false;
+        String t = telefono.trim().replaceAll("[ \\-]", "");
+        return t.matches("(\\+34)?[6789]\\d{8}");
+    }
+
+    /**
+     * Valida que una cadena de texto no esté vacía y solo contenga
+     * letras (incluyendo acentos, ñ, etc.) y espacios.
+     *
+     * @param texto cadena a validar
+     * @return {@code true} si el texto es un nombre válido; {@code false} en caso contrario
+     */
+    private static boolean validarNombre(String texto) {
+        if (texto == null || texto.isBlank()) return false;
+        return texto.trim().matches("[\\p{L} .'-]+");
+    }
+
+    /**
+     * Valida que una cadena no esté vacía y tenga una longitud mínima de 2
+     * caracteres, sin restricción de caracteres (para direcciones, títulos, etc.).
+     *
+     * @param texto cadena a validar
+     * @return {@code true} si el texto es válido; {@code false} en caso contrario
+     */
+    private static boolean validarTextoGeneral(String texto) {
+        return texto != null && texto.trim().length() >= 2;
+    }
+
+    /**
+     * Intenta parsear una fecha en formato AAAA-MM-DD.
+     *
+     * @param fechaStr cadena con la fecha
+     * @return el {@link LocalDate} correspondiente, o {@code null} si el formato es inválido
+     */
+    private static LocalDate parsearFecha(String fechaStr) {
+        try {
+            return LocalDate.parse(fechaStr.trim());
+        } catch (DateTimeParseException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Solicita al usuario un DNI hasta que introduce uno válido.
+     *
+     * @param mensaje mensaje a mostrar antes de pedir el dato
+     * @return DNI válido en mayúsculas
+     */
+    private static String leerDni(String mensaje) {
+        while (true) {
+            System.out.print(mensaje);
+            String dni = sc.nextLine().trim().toUpperCase();
+            if (validarDni(dni)) return dni;
+            System.out.println("  ✗ DNI no válido. Debe tener 8 dígitos seguidos de la letra de control correcta (ej: 12345678Z).");
+        }
+    }
+
+    /**
+     * Solicita al usuario un teléfono hasta que introduce uno válido.
+     *
+     * @param mensaje mensaje a mostrar antes de pedir el dato
+     * @return teléfono válido
+     */
+    private static String leerTelefono(String mensaje) {
+        while (true) {
+            System.out.print(mensaje);
+            String telefono = sc.nextLine().trim();
+            if (validarTelefono(telefono)) return telefono;
+            System.out.println("  ✗ Teléfono no válido. Introduce 9 dígitos comenzando por 6, 7, 8 o 9 (ej: 612345678).");
+        }
+    }
+
+    /**
+     * Solicita al usuario un nombre (persona/lugar) hasta que introduce uno válido.
+     *
+     * @param mensaje mensaje a mostrar antes de pedir el dato
+     * @return nombre válido
+     */
+    private static String leerNombre(String mensaje) {
+        while (true) {
+            System.out.print(mensaje);
+            String nombre = sc.nextLine().trim();
+            if (validarNombre(nombre)) return nombre;
+            System.out.println("  ✗ Nombre no válido. Solo se permiten letras y espacios, mínimo 2 caracteres.");
+        }
+    }
+
+    /**
+     * Solicita al usuario un texto genérico (título, dirección, etc.) hasta que
+     * introduce uno con al menos 2 caracteres.
+     *
+     * @param mensaje mensaje a mostrar antes de pedir el dato
+     * @return texto válido
+     */
+    private static String leerTexto(String mensaje) {
+        while (true) {
+            System.out.print(mensaje);
+            String texto = sc.nextLine().trim();
+            if (validarTextoGeneral(texto)) return texto;
+            System.out.println("  ✗ El campo no puede estar vacío y debe tener al menos 2 caracteres.");
+        }
+    }
+
+    /**
+     * Solicita al usuario una fecha en formato AAAA-MM-DD hasta que introduce
+     * una válida.
+     *
+     * @param mensaje mensaje a mostrar antes de pedir el dato
+     * @return fecha válida
+     */
+    private static LocalDate leerFecha(String mensaje) {
+        while (true) {
+            System.out.print(mensaje);
+            String fechaStr = sc.nextLine().trim();
+            LocalDate fecha = parsearFecha(fechaStr);
+            if (fecha != null) return fecha;
+            System.out.println("  ✗ Fecha no válida. Usa el formato AAAA-MM-DD (ej: 2024-03-15).");
+        }
+    }
+
+    /**
+     * Solicita al usuario una fecha opcional: si deja el campo en blanco
+     * se devuelve el valor por defecto indicado.
+     *
+     * @param mensaje        mensaje a mostrar
+     * @param valorPorDefecto valor a devolver si el usuario no introduce nada
+     * @return fecha introducida o {@code valorPorDefecto}
+     */
+    private static LocalDate leerFechaOpcional(String mensaje, LocalDate valorPorDefecto) {
+        while (true) {
+            System.out.print(mensaje);
+            String fechaStr = sc.nextLine().trim();
+            if (fechaStr.isBlank()) return valorPorDefecto;
+            LocalDate fecha = parsearFecha(fechaStr);
+            if (fecha != null) return fecha;
+            System.out.println("  ✗ Fecha no válida. Usa el formato AAAA-MM-DD (ej: 2024-03-15) o deja en blanco.");
+        }
+    }
+
+    /**
+     * Solicita al usuario un DNI opcional: si deja el campo en blanco se devuelve
+     * {@code null}. Si escribe algo, debe ser un DNI válido.
+     *
+     * @param mensaje mensaje a mostrar
+     * @return DNI válido o {@code null}
+     */
+    private static String leerDniOpcional(String mensaje) {
+        while (true) {
+            System.out.print(mensaje);
+            String dni = sc.nextLine().trim();
+            if (dni.isBlank()) return null;
+            String dniUp = dni.toUpperCase();
+            if (validarDni(dniUp)) return dniUp;
+            System.out.println("  ✗ DNI no válido. Debe tener 8 dígitos seguidos de la letra correcta, o deja en blanco.");
+        }
+    }
+
+    /**
+     * Solicita al usuario un ID entero positivo hasta que introduce uno válido.
+     *
+     * @param mensaje mensaje a mostrar
+     * @return entero positivo introducido
+     */
+    private static int leerIdPositivo(String mensaje) {
+        while (true) {
+            System.out.print(mensaje);
+            if (sc.hasNextInt()) {
+                int val = sc.nextInt();
+                sc.nextLine();
+                if (val > 0) return val;
+                System.out.println("  ✗ El ID debe ser un número entero positivo.");
+            } else {
+                System.out.println("  ✗ Entrada no válida. Introduce un número entero.");
+                sc.nextLine();
+            }
+        }
+    }
+
+    // =========================================================
+    //  PUNTO DE ENTRADA
+    // =========================================================
 
     /**
      * Punto de entrada de la aplicación.
@@ -169,6 +383,11 @@ public class Main {
         sc.nextLine(); // Limpiamos el buffer
         return opt;
     }
+
+    // =========================================================
+    //  MENÚ PELÍCULAS
+    // =========================================================
+
     /**
      * Muestra y gestiona el submenú de gestión de películas.
      * Permite al usuario realizar las siguientes operaciones:
@@ -191,25 +410,21 @@ public class Main {
             System.out.print("Seleccione una opción: ");
 
             switch (leerOpcion()) {
-                case 1:
+                case 1: {
                     System.out.println("-> Ejecutando: Alta de nueva película...");
-                    System.out.print("Introduce el título: ");
-                    String titulo = sc.nextLine();
-                    System.out.print("Introduce la nacionalidad: ");
-                    String nacionalidad = sc.nextLine();
-                    System.out.print("Introduce la productora: ");
-                    String productora = sc.nextLine();
-                    System.out.print("Introduce la fecha (AAAA-MM-DD): ");
-                    LocalDate fecha = LocalDate.parse(sc.nextLine());
-                    System.out.print("Introduce el ID del director: ");
-                    int idDirector = leerOpcion();
+
+                    String titulo = leerTexto("Introduce el título: ");
+                    String nacionalidad = leerNombre("Introduce la nacionalidad: ");
+                    String productora = leerTexto("Introduce la productora: ");
+                    LocalDate fecha = leerFecha("Introduce la fecha (AAAA-MM-DD): ");
+                    int idDirector = leerIdPositivo("Introduce el ID del director: ");
 
                     Pelicula nueva = new Pelicula(0, titulo, nacionalidad, productora, fecha, idDirector);
                     peliculasDAO.darDeAlta(nueva);
                     System.out.println("¡Película guardada con éxito! ID: " + nueva.getId());
                     break;
-
-                case 2:
+                }
+                case 2: {
                     System.out.println("--- CONSULTA Y BÚSQUEDA ---");
                     System.out.println("1. Buscar por Título");
                     System.out.println("2. Buscar por Nacionalidad");
@@ -230,6 +445,9 @@ public class Main {
                         lista = peliculasDAO.buscarPorProductora(sc.nextLine());
                     } else if (sub == 4) {
                         lista = peliculasDAO.listarTodas();
+                    } else {
+                        System.out.println("Opción no válida.");
+                        break;
                     }
 
                     if (lista.isEmpty()) {
@@ -238,31 +456,47 @@ public class Main {
                         lista.forEach(System.out::println);
                     }
                     break;
-
-                case 3:
-                    System.out.print("ID de la película a modificar: ");
-                    int idMod = leerOpcion();
+                }
+                case 3: {
+                    int idMod = leerIdPositivo("ID de la película a modificar: ");
                     Optional<Pelicula> optPeli = peliculasDAO.buscarPorId(idMod);
 
                     if (optPeli.isPresent()) {
                         Pelicula p = optPeli.get();
                         System.out.println("Modificando: " + p.getTitulo());
 
-                        System.out.print("Nuevo título: ");
-                        String t = sc.nextLine();
-                        if (!t.isEmpty()) p.setTitulo(t);
+                        System.out.print("Nuevo título (deja en blanco para no cambiar): ");
+                        String t = sc.nextLine().trim();
+                        if (!t.isBlank()) {
+                            if (validarTextoGeneral(t)) p.setTitulo(t);
+                            else System.out.println("  ✗ Título no válido, se mantiene el anterior.");
+                        }
 
-                        System.out.print("Nueva nacionalidad: ");
-                        String n = sc.nextLine();
-                        if (!n.isEmpty()) p.setNacionalidad(n);
+                        System.out.print("Nueva nacionalidad (deja en blanco para no cambiar): ");
+                        String n = sc.nextLine().trim();
+                        if (!n.isBlank()) {
+                            if (validarNombre(n)) p.setNacionalidad(n);
+                            else System.out.println("  ✗ Nacionalidad no válida, se mantiene la anterior.");
+                        }
 
-                        System.out.print("Nueva productora: ");
-                        String pr = sc.nextLine();
-                        if (!pr.isEmpty()) p.setProductora(pr);
+                        System.out.print("Nueva productora (deja en blanco para no cambiar): ");
+                        String pr = sc.nextLine().trim();
+                        if (!pr.isBlank()) {
+                            if (validarTextoGeneral(pr)) p.setProductora(pr);
+                            else System.out.println("  ✗ Productora no válida, se mantiene la anterior.");
+                        }
 
                         System.out.print("Nuevo ID Director (0 para omitir): ");
-                        int idD = leerOpcion();
-                        if (idD != 0) p.setIdDirector(idD);
+                        String idDStr = sc.nextLine().trim();
+                        if (!idDStr.isBlank()) {
+                            try {
+                                int idD = Integer.parseInt(idDStr);
+                                if (idD > 0) p.setIdDirector(idD);
+                                else if (idD != 0) System.out.println("  ✗ ID de director no válido, se mantiene el anterior.");
+                            } catch (NumberFormatException e) {
+                                System.out.println("  ✗ ID no numérico, se mantiene el anterior.");
+                            }
+                        }
 
                         peliculasDAO.actualizar(p);
                         System.out.println("Película actualizada con éxito.");
@@ -270,20 +504,22 @@ public class Main {
                         System.out.println("Error: No existe película con ID " + idMod);
                     }
                     break;
-
-                case 4:
-                    System.out.print("ID de la película a eliminar: ");
-                    int idEli = leerOpcion();
+                }
+                case 4: {
+                    int idEli = leerIdPositivo("ID de la película a eliminar: ");
                     System.out.print("¿Seguro que desea eliminar? (Si/No): ");
-                    if (sc.nextLine().equals("Si")) {
+                    String conf = sc.nextLine().trim();
+                    if (conf.equalsIgnoreCase("si") || conf.equalsIgnoreCase("sí")) {
                         if (peliculasDAO.eliminarPorId(idEli)) {
                             System.out.println("Película eliminada.");
                         } else {
                             System.out.println("No se pudo eliminar (ID no encontrado).");
                         }
+                    } else {
+                        System.out.println("Operación cancelada.");
                     }
                     break;
-
+                }
                 case 5:
                     volver = true;
                     break;
@@ -293,6 +529,10 @@ public class Main {
             }
         }
     }
+
+    // =========================================================
+    //  MENÚ ACTORES
+    // =========================================================
 
     /**
      * Muestra y gestiona el submenú de gestión de actores.
@@ -318,26 +558,26 @@ public class Main {
             System.out.print("Seleccione una opción: ");
 
             switch (leerOpcion()) {
-                case 1:
+                case 1: {
                     System.out.println("\n-> Ejecutando: Alta de nuevo actor...");
-                    System.out.print("Introduce el nombre: ");
-                    String nombre = sc.nextLine();
-                    System.out.print("Introduce la nacionalidad: ");
-                    String nacionalidad = sc.nextLine();
-                    System.out.print("Introduce el sexo: ");
-                    String sexo = sc.nextLine();
 
-                    if (nombre.isBlank() || nacionalidad.isBlank() || sexo.isBlank()) {
-                        System.out.println("Todos los campos son obligatorios.");
-                        break;
+                    String nombre = leerNombre("Introduce el nombre: ");
+                    String nacionalidad = leerNombre("Introduce la nacionalidad: ");
+
+                    String sexo;
+                    while (true) {
+                        System.out.print("Introduce el sexo (H/M/Otro): ");
+                        sexo = sc.nextLine().trim();
+                        if (sexo.equalsIgnoreCase("H") || sexo.equalsIgnoreCase("M") || sexo.equalsIgnoreCase("Otro")) break;
+                        System.out.println("  ✗ Sexo no válido. Introduce H, M u Otro.");
                     }
 
                     Actor nuevo = new Actor(0, nombre, nacionalidad, sexo);
                     nuevo = actoresDAO.darDeAlta(nuevo);
                     System.out.println("¡Actor guardado con éxito! ID: " + nuevo.getId());
                     break;
-
-                case 2:
+                }
+                case 2: {
                     System.out.println("\n-> Ejecutando: Consultar actores...");
                     System.out.println("1. Buscar por nombre");
                     System.out.println("2. Buscar por nacionalidad");
@@ -356,34 +596,29 @@ public class Main {
                         resultados = actoresDAO.listarTodos();
                     } else {
                         System.out.println("Filtro no válido.");
+                        break;
                     }
 
-                    if (resultados != null) {
-                        if (resultados.isEmpty()) {
-                            System.out.println("No se encontraron actores.");
-                        } else {
-                            resultados.forEach(System.out::println);
-                        }
+                    if (resultados.isEmpty()) {
+                        System.out.println("No se encontraron actores.");
+                    } else {
+                        resultados.forEach(System.out::println);
                     }
                     break;
-
-                case 3:
+                }
+                case 3: {
                     System.out.println("\n-> Ejecutando: Asociar actor a película...");
-                    System.out.print("Introduce el ID del actor: ");
-                    int idActorAsoc = Integer.parseInt(sc.nextLine());
-                    System.out.print("Introduce el ID de la película: ");
-                    int idPeliculaAsoc = Integer.parseInt(sc.nextLine());
-                    System.out.print("Introduce el rol del actor en la película (ej. Protagonista, Extra): ");
-                    String rol = sc.nextLine();
+                    int idActorAsoc = leerIdPositivo("Introduce el ID del actor: ");
+                    int idPeliculaAsoc = leerIdPositivo("Introduce el ID de la película: ");
+                    String rol = leerTexto("Introduce el rol del actor en la película (ej. Protagonista, Extra): ");
 
                     actoresDAO.asociarAPelicula(idActorAsoc, idPeliculaAsoc, rol);
                     System.out.println("Actor asociado a la película con éxito.");
                     break;
-
-                case 4:
+                }
+                case 4: {
                     System.out.println("\n-> Ejecutando: Modificar datos...");
-                    System.out.print("Introduce el ID del actor a modificar: ");
-                    int idMod = leerOpcion();
+                    int idMod = leerIdPositivo("Introduce el ID del actor a modificar: ");
 
                     Optional<Actor> actorOpt = actoresDAO.buscarPorId(idMod);
                     if (actorOpt.isPresent()) {
@@ -391,16 +626,28 @@ public class Main {
                         System.out.println("Actor actual: " + actorMod);
 
                         System.out.print("Nuevo nombre (deja en blanco para no cambiar): ");
-                        String nNombre = sc.nextLine();
-                        if (!nNombre.isBlank()) actorMod.setNombre(nNombre);
+                        String nNombre = sc.nextLine().trim();
+                        if (!nNombre.isBlank()) {
+                            if (validarNombre(nNombre)) actorMod.setNombre(nNombre);
+                            else System.out.println("  ✗ Nombre no válido, se mantiene el anterior.");
+                        }
 
                         System.out.print("Nueva nacionalidad (deja en blanco para no cambiar): ");
-                        String nNac = sc.nextLine();
-                        if (!nNac.isBlank()) actorMod.setNacionalidad(nNac);
+                        String nNac = sc.nextLine().trim();
+                        if (!nNac.isBlank()) {
+                            if (validarNombre(nNac)) actorMod.setNacionalidad(nNac);
+                            else System.out.println("  ✗ Nacionalidad no válida, se mantiene la anterior.");
+                        }
 
-                        System.out.print("Nuevo sexo (deja en blanco para no cambiar): ");
-                        String nSexo = sc.nextLine();
-                        if (!nSexo.isBlank()) actorMod.setSexo(nSexo);
+                        System.out.print("Nuevo sexo (H/M/Otro, deja en blanco para no cambiar): ");
+                        String nSexo = sc.nextLine().trim();
+                        if (!nSexo.isBlank()) {
+                            if (nSexo.equalsIgnoreCase("H") || nSexo.equalsIgnoreCase("M") || nSexo.equalsIgnoreCase("Otro")) {
+                                actorMod.setSexo(nSexo);
+                            } else {
+                                System.out.println("  ✗ Sexo no válido (H/M/Otro), se mantiene el anterior.");
+                            }
+                        }
 
                         actoresDAO.actualizar(actorMod);
                         System.out.println("¡Actor actualizado con éxito!");
@@ -408,8 +655,8 @@ public class Main {
                         System.out.println("No existe ningún actor con ese ID.");
                     }
                     break;
-
-                case 5:
+                }
+                case 5: {
                     System.out.println("\n-> Ejecutando: Eliminar o desvincular actor...");
                     System.out.println("1. Eliminar actor del sistema");
                     System.out.println("2. Desvincular actor de una película");
@@ -417,24 +664,20 @@ public class Main {
                     int opcEliminar = leerOpcion();
 
                     if (opcEliminar == 1) {
-                        System.out.print("Introduce el ID del actor a eliminar: ");
-                        int idElim = Integer.parseInt(sc.nextLine());
+                        int idElim = leerIdPositivo("Introduce el ID del actor a eliminar: ");
                         boolean eliminado = actoresDAO.eliminarPorId(idElim);
                         if (eliminado) System.out.println("Actor eliminado correctamente.");
                         else System.out.println("No se pudo eliminar (o no existe).");
                     } else if (opcEliminar == 2) {
-                        System.out.print("Introduce el ID del actor: ");
-                        int idActDesv = Integer.parseInt(sc.nextLine());
-                        System.out.print("Introduce el ID de la película: ");
-                        int idPelDesv = Integer.parseInt(sc.nextLine());
-
+                        int idActDesv = leerIdPositivo("Introduce el ID del actor: ");
+                        int idPelDesv = leerIdPositivo("Introduce el ID de la película: ");
                         actoresDAO.desvincularDePelicula(idActDesv, idPelDesv);
                         System.out.println("Actor desvinculado de la película.");
                     } else {
                         System.out.println("Opción no válida.");
                     }
                     break;
-
+                }
                 case 6:
                     volver = true;
                     break;
@@ -444,6 +687,10 @@ public class Main {
             }
         }
     }
+
+    // =========================================================
+    //  MENÚ DIRECTORES
+    // =========================================================
 
     /**
      * Muestra y gestiona el submenú de gestión de directores.
@@ -471,15 +718,9 @@ public class Main {
             switch (leerOpcion()) {
                 case 1: {
                     System.out.println("\n-> Ejecutando: Alta de nuevo director...");
-                    System.out.print("Introduce el nombre: ");
-                    String nombre = sc.nextLine();
-                    System.out.print("Introduce la nacionalidad: ");
-                    String nacionalidad = sc.nextLine();
 
-                    if (nombre.isBlank() || nacionalidad.isBlank()) {
-                        System.out.println("Todos los campos son obligatorios.");
-                        break;
-                    }
+                    String nombre = leerNombre("Introduce el nombre: ");
+                    String nacionalidad = leerNombre("Introduce la nacionalidad: ");
 
                     Director nuevo = new Director(0, nombre, nacionalidad);
                     nuevo = directorDAO.darDeAlta(nuevo);
@@ -505,6 +746,7 @@ public class Main {
                         resultados = directorDAO.listarTodos();
                     } else {
                         System.out.println("Filtro no válido.");
+                        break;
                     }
 
                     if (resultados.isEmpty()) {
@@ -516,10 +758,8 @@ public class Main {
                 }
                 case 3: {
                     System.out.println("\n-> Ejecutando: Asignar director a película...");
-                    System.out.print("Introduce el ID del director: ");
-                    int idDirector = leerOpcion();
-                    System.out.print("Introduce el ID de la película: ");
-                    int idPelicula = leerOpcion();
+                    int idDirector = leerIdPositivo("Introduce el ID del director: ");
+                    int idPelicula = leerIdPositivo("Introduce el ID de la película: ");
 
                     directorDAO.asignarAPelicula(idDirector, idPelicula);
                     System.out.println("Director asignado a la película con éxito.");
@@ -527,8 +767,7 @@ public class Main {
                 }
                 case 4: {
                     System.out.println("\n-> Ejecutando: Modificar datos...");
-                    System.out.print("Introduce el ID del director a modificar: ");
-                    int idMod = leerOpcion();
+                    int idMod = leerIdPositivo("Introduce el ID del director a modificar: ");
 
                     Optional<Director> directorOpt = directorDAO.buscarPorId(idMod);
                     if (directorOpt.isPresent()) {
@@ -536,12 +775,18 @@ public class Main {
                         System.out.println("Director actual: " + directorMod);
 
                         System.out.print("Nuevo nombre (deja en blanco para no cambiar): ");
-                        String nNombre = sc.nextLine();
-                        if (!nNombre.isBlank()) directorMod.setNombre(nNombre);
+                        String nNombre = sc.nextLine().trim();
+                        if (!nNombre.isBlank()) {
+                            if (validarNombre(nNombre)) directorMod.setNombre(nNombre);
+                            else System.out.println("  ✗ Nombre no válido, se mantiene el anterior.");
+                        }
 
                         System.out.print("Nueva nacionalidad (deja en blanco para no cambiar): ");
-                        String nNac = sc.nextLine();
-                        if (!nNac.isBlank()) directorMod.setNacionalidad(nNac);
+                        String nNac = sc.nextLine().trim();
+                        if (!nNac.isBlank()) {
+                            if (validarNombre(nNac)) directorMod.setNacionalidad(nNac);
+                            else System.out.println("  ✗ Nacionalidad no válida, se mantiene la anterior.");
+                        }
 
                         directorDAO.actualizar(directorMod);
                         System.out.println("¡Director actualizado con éxito!");
@@ -552,8 +797,7 @@ public class Main {
                 }
                 case 5: {
                     System.out.println("\n-> Ejecutando: Eliminar director...");
-                    System.out.print("Introduce el ID del director a eliminar: ");
-                    int idElim = leerOpcion();
+                    int idElim = leerIdPositivo("Introduce el ID del director a eliminar: ");
 
                     Optional<Director> directorElim = directorDAO.buscarPorId(idElim);
                     if (directorElim.isPresent()) {
@@ -578,6 +822,10 @@ public class Main {
             }
         }
     }
+
+    // =========================================================
+    //  MENÚ EJEMPLARES
+    // =========================================================
 
     /**
      * Muestra y gestiona el submenú de gestión de ejemplares.
@@ -605,8 +853,7 @@ public class Main {
             switch (leerOpcion()) {
                 case 1: {
                     System.out.println("\n-> Ejecutando: Alta de nuevo ejemplar...");
-                    System.out.print("Introduce el ID de la película: ");
-                    int idPelicula = leerOpcion();
+                    int idPelicula = leerIdPositivo("Introduce el ID de la película: ");
 
                     System.out.println("Selecciona el estado de conservación:");
                     EstadoConservacion[] estados = EstadoConservacion.values();
@@ -628,8 +875,7 @@ public class Main {
                 }
                 case 2: {
                     System.out.println("\n-> Ejecutando: Consultar ejemplares...");
-                    System.out.print("Introduce el ID de la película: ");
-                    int idPelicula = leerOpcion();
+                    int idPelicula = leerIdPositivo("Introduce el ID de la película: ");
 
                     List<Ejemplar> ejemplares = ejemplarDAO.buscarPorPelicula(idPelicula);
                     if (ejemplares.isEmpty()) {
@@ -641,8 +887,7 @@ public class Main {
                 }
                 case 3: {
                     System.out.println("\n-> Ejecutando: Actualizar estado de conservación...");
-                    System.out.print("Introduce el número del ejemplar: ");
-                    int numEjemplar = leerOpcion();
+                    int numEjemplar = leerIdPositivo("Introduce el número del ejemplar: ");
 
                     Optional<Ejemplar> ejemplarOpt = ejemplarDAO.buscarPorId(numEjemplar);
                     if (ejemplarOpt.isPresent()) {
@@ -670,8 +915,7 @@ public class Main {
                 }
                 case 4: {
                     System.out.println("\n-> Ejecutando: Eliminar ejemplar...");
-                    System.out.print("Introduce el número del ejemplar a eliminar: ");
-                    int numElim = leerOpcion();
+                    int numElim = leerIdPositivo("Introduce el número del ejemplar a eliminar: ");
 
                     Optional<Ejemplar> ejemplarElim = ejemplarDAO.buscarPorId(numElim);
                     if (ejemplarElim.isPresent()) {
@@ -700,6 +944,10 @@ public class Main {
         }
     }
 
+    // =========================================================
+    //  MENÚ SOCIOS
+    // =========================================================
+
     /**
      * Muestra y gestiona el submenú de gestión de socios.
      * Permite al usuario realizar las siguientes operaciones:
@@ -724,27 +972,32 @@ public class Main {
             switch (leerOpcion()) {
                 case 1: {
                     System.out.println("\n-> Ejecutando: Registrar nuevo socio...");
-                    System.out.print("Introduce el DNI: ");
-                    String dni = sc.nextLine();
-                    System.out.print("Introduce el nombre: ");
-                    String nombre = sc.nextLine();
-                    System.out.print("Introduce la dirección: ");
-                    String direccion = sc.nextLine();
-                    System.out.print("Introduce el teléfono: ");
-                    String telefono = sc.nextLine();
-                    System.out.print("Introduce el DNI del socio aval (o el mismo DNI si es el primero): ");
-                    String dniAval = sc.nextLine();
 
-                    if (dni.isBlank() || nombre.isBlank() || direccion.isBlank() || telefono.isBlank() || dniAval.isBlank()) {
-                        System.out.println("Todos los campos son obligatorios.");
-                        break;
-                    }
+                    String dni = leerDni("Introduce el DNI: ");
+                    String nombre = leerNombre("Introduce el nombre: ");
+                    String direccion = leerTexto("Introduce la dirección: ");
+                    String telefono = leerTelefono("Introduce el teléfono: ");
 
-                    // Comprobamos que el socio aval existe, salvo que se avale a sí mismo
-                    if (!dniAval.equals(dni)) {
-                        Optional<Socio> avalOpt = socioDAO.buscarPorDni(dniAval);
+                    // El socio aval puede ser el mismo DNI (se avala a sí mismo) o un DNI existente
+                    String dniAval;
+                    while (true) {
+                        System.out.print("Introduce el DNI del socio aval (o el mismo DNI si se avala a sí mismo): ");
+                        String entrada = sc.nextLine().trim().toUpperCase();
+                        if (!validarDni(entrada)) {
+                            System.out.println("  ✗ DNI aval no válido. Debe tener 8 dígitos seguidos de la letra correcta.");
+                            continue;
+                        }
+                        // Si se avala a sí mismo no hace falta buscar en la BD
+                        if (entrada.equals(dni)) {
+                            dniAval = entrada;
+                            break;
+                        }
+                        // Comprobamos que el socio aval existe
+                        Optional<Socio> avalOpt = socioDAO.buscarPorDni(entrada);
                         if (avalOpt.isEmpty()) {
-                            System.out.println("Error: El socio aval con DNI " + dniAval + " no existe.");
+                            System.out.println("  ✗ Error: El socio aval con DNI " + entrada + " no existe en el sistema.");
+                        } else {
+                            dniAval = entrada;
                             break;
                         }
                     }
@@ -764,8 +1017,8 @@ public class Main {
                     int filtro = leerOpcion();
 
                     if (filtro == 1) {
-                        System.out.print("Introduce el DNI: ");
-                        Optional<Socio> resultado = socioDAO.buscarPorDni(sc.nextLine());
+                        String dniConsulta = leerDni("Introduce el DNI: ");
+                        Optional<Socio> resultado = socioDAO.buscarPorDni(dniConsulta);
                         if (resultado.isPresent()) {
                             System.out.println(resultado.get());
                         } else {
@@ -796,8 +1049,7 @@ public class Main {
                 }
                 case 3: {
                     System.out.println("\n-> Ejecutando: Modificar datos de socio...");
-                    System.out.print("Introduce el DNI del socio a modificar: ");
-                    String dniMod = sc.nextLine();
+                    String dniMod = leerDni("Introduce el DNI del socio a modificar: ");
 
                     Optional<Socio> socioOpt = socioDAO.buscarPorDni(dniMod);
                     if (socioOpt.isPresent()) {
@@ -805,26 +1057,33 @@ public class Main {
                         System.out.println("Socio actual: " + socioMod);
 
                         System.out.print("Nuevo nombre (deja en blanco para no cambiar): ");
-                        String nNombre = sc.nextLine();
-                        if (!nNombre.isBlank()) socioMod.setNombre(nNombre);
+                        String nNombre = sc.nextLine().trim();
+                        if (!nNombre.isBlank()) {
+                            if (validarNombre(nNombre)) socioMod.setNombre(nNombre);
+                            else System.out.println("  ✗ Nombre no válido, se mantiene el anterior.");
+                        }
 
                         System.out.print("Nueva dirección (deja en blanco para no cambiar): ");
-                        String nDireccion = sc.nextLine();
-                        if (!nDireccion.isBlank()) socioMod.setDireccion(nDireccion);
+                        String nDireccion = sc.nextLine().trim();
+                        if (!nDireccion.isBlank()) {
+                            if (validarTextoGeneral(nDireccion)) socioMod.setDireccion(nDireccion);
+                            else System.out.println("  ✗ Dirección no válida, se mantiene la anterior.");
+                        }
 
                         System.out.print("Nuevo teléfono (deja en blanco para no cambiar): ");
-                        String nTelefono = sc.nextLine();
-                        if (!nTelefono.isBlank()) socioMod.setTelefono(nTelefono);
+                        String nTelefono = sc.nextLine().trim();
+                        if (!nTelefono.isBlank()) {
+                            if (validarTelefono(nTelefono)) socioMod.setTelefono(nTelefono);
+                            else System.out.println("  ✗ Teléfono no válido, se mantiene el anterior.");
+                        }
 
-                        System.out.print("Nuevo DNI aval (deja en blanco para no cambiar): ");
-                        String nDniAval = sc.nextLine();
-                        if (!nDniAval.isBlank()) {
-                            // Comprobamos que el nuevo aval existe
+                        String nDniAval = leerDniOpcional("Nuevo DNI aval (deja en blanco para no cambiar): ");
+                        if (nDniAval != null) {
                             if (!nDniAval.equals(dniMod) && socioDAO.buscarPorDni(nDniAval).isEmpty()) {
-                                System.out.println("Error: El socio aval con DNI " + nDniAval + " no existe.");
-                                break;
+                                System.out.println("  ✗ Error: El socio aval con DNI " + nDniAval + " no existe.");
+                            } else {
+                                socioMod.setDniAval(nDniAval);
                             }
-                            socioMod.setDniAval(nDniAval);
                         }
 
                         socioDAO.actualizar(socioMod);
@@ -836,8 +1095,7 @@ public class Main {
                 }
                 case 4: {
                     System.out.println("\n-> Ejecutando: Eliminar socio...");
-                    System.out.print("Introduce el DNI del socio a eliminar: ");
-                    String dniElim = sc.nextLine();
+                    String dniElim = leerDni("Introduce el DNI del socio a eliminar: ");
 
                     Optional<Socio> socioElim = socioDAO.buscarPorDni(dniElim);
                     if (socioElim.isPresent()) {
@@ -866,6 +1124,10 @@ public class Main {
         }
     }
 
+    // =========================================================
+    //  MENÚ ALQUILERES
+    // =========================================================
+
     /**
      * Muestra y gestiona el submenú de gestión de alquileres.
      * Permite al usuario realizar las siguientes operaciones:
@@ -890,20 +1152,11 @@ public class Main {
             switch (leerOpcion()) {
                 case 1: {
                     System.out.println("\n-> Ejecutando: Registrar nuevo alquiler...");
-                    System.out.print("Introduce el número del ejemplar: ");
-                    int numEjemplar = leerOpcion();
-                    System.out.print("Introduce el DNI del socio: ");
-                    String dniSocio = sc.nextLine();
-                    System.out.print("Introduce la fecha de inicio (AAAA-MM-DD): ");
-                    String fechaStr = sc.nextLine();
-
-                    if (dniSocio.isBlank() || fechaStr.isBlank()) {
-                        System.out.println("Todos los campos son obligatorios.");
-                        break;
-                    }
+                    int numEjemplar = leerIdPositivo("Introduce el número del ejemplar: ");
+                    String dniSocio = leerDni("Introduce el DNI del socio: ");
+                    LocalDate fechaInicio = leerFecha("Introduce la fecha de inicio (AAAA-MM-DD): ");
 
                     try {
-                        LocalDate fechaInicio = LocalDate.parse(fechaStr);
                         Alquiler nuevo = new Alquiler(0, numEjemplar, dniSocio, fechaInicio, null);
                         nuevo = alquilerDAO.registrarAlquiler(nuevo);
                         System.out.println("¡Alquiler registrado con éxito! ID: " + nuevo.getIdAlquiler());
@@ -927,11 +1180,11 @@ public class Main {
                     } else if (filtro == 2) {
                         resultados = alquilerDAO.listarHistorico();
                     } else if (filtro == 3) {
-                        System.out.print("Introduce el DNI del socio: ");
-                        resultados = alquilerDAO.buscarPorSocio(sc.nextLine());
+                        String dniConsulta = leerDni("Introduce el DNI del socio: ");
+                        resultados = alquilerDAO.buscarPorSocio(dniConsulta);
                     } else if (filtro == 4) {
-                        System.out.print("Introduce el ID de la película: ");
-                        resultados = alquilerDAO.buscarPorPelicula(leerOpcion());
+                        int idPeli = leerIdPositivo("Introduce el ID de la película: ");
+                        resultados = alquilerDAO.buscarPorPelicula(idPeli);
                     } else {
                         System.out.println("Filtro no válido.");
                         break;
@@ -946,8 +1199,7 @@ public class Main {
                 }
                 case 3: {
                     System.out.println("\n-> Ejecutando: Registrar devolución...");
-                    System.out.print("Introduce el ID del alquiler: ");
-                    int idAlquiler = leerOpcion();
+                    int idAlquiler = leerIdPositivo("Introduce el ID del alquiler: ");
 
                     Optional<Alquiler> alquilerOpt = alquilerDAO.buscarPorId(idAlquiler);
                     if (alquilerOpt.isPresent()) {
@@ -957,11 +1209,18 @@ public class Main {
                             break;
                         }
                         System.out.println("Alquiler encontrado: " + alquiler);
-                        System.out.print("Introduce la fecha de devolución (AAAA-MM-DD, o deja en blanco para hoy): ");
-                        String fechaStr = sc.nextLine();
+                        LocalDate fechaDev = leerFechaOpcional(
+                                "Introduce la fecha de devolución (AAAA-MM-DD, o deja en blanco para hoy): ",
+                                LocalDate.now()
+                        );
+
+                        if (fechaDev.isBefore(alquiler.getFechaInicio())) {
+                            System.out.println("  ✗ Error: La fecha de devolución no puede ser anterior a la fecha de inicio ("
+                                    + alquiler.getFechaInicio() + ").");
+                            break;
+                        }
 
                         try {
-                            LocalDate fechaDev = fechaStr.isBlank() ? LocalDate.now() : LocalDate.parse(fechaStr);
                             alquilerDAO.registrarDevolucion(idAlquiler, fechaDev);
                             System.out.println("¡Devolución registrada con éxito!");
                         } catch (Exception e) {
@@ -974,8 +1233,7 @@ public class Main {
                 }
                 case 4: {
                     System.out.println("\n-> Ejecutando: Cancelar alquiler...");
-                    System.out.print("Introduce el ID del alquiler a cancelar: ");
-                    int idCancelar = leerOpcion();
+                    int idCancelar = leerIdPositivo("Introduce el ID del alquiler a cancelar: ");
 
                     Optional<Alquiler> alquilerCancelar = alquilerDAO.buscarPorId(idCancelar);
                     if (alquilerCancelar.isPresent()) {

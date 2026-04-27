@@ -47,62 +47,67 @@ public class ConexionBD {
 
             // Tabla de directores
             stmt.execute("CREATE TABLE IF NOT EXISTS director ("
-                    + "Nombre TEXT PRIMARY KEY, "
-                    + "Nacionalidad TEXT, "
-                    + "Sexo TEXT, "
-                    + "Papel TEXT"
+                    + "id_director INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    + "nombre TEXT NOT NULL, "
+                    + "nacionalidad TEXT"
                     + ")");
 
-            // Tabla de actores
+// Tabla de actores
             stmt.execute("CREATE TABLE IF NOT EXISTS actor ("
-                    + "Nombre TEXT PRIMARY KEY, "
-                    + "Nacionalidad TEXT"
+                    + "id_actor INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    + "nombre TEXT NOT NULL, "
+                    + "nacionalidad TEXT, "
+                    + "sexo TEXT"
                     + ")");
 
-            // Tabla de películas
-            stmt.execute("CREATE TABLE IF NOT EXISTS pelicula ("
-                    + "Titulo TEXT PRIMARY KEY, "
-                    + "Fecha TEXT, "
-                    + "Nacionalidad TEXT, "
-                    + "Productora TEXT, "
-                    + "NombreDirector TEXT, "
-                    + "FOREIGN KEY (NombreDirector) REFERENCES Director(Nombre)"
+// Tabla de películas
+            stmt.execute("CREATE TABLE IF NOT EXISTS peliculas ("
+                    + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    + "titulo TEXT NOT NULL, "
+                    + "nacionalidad TEXT, "
+                    + "productora TEXT, "
+                    + "fecha TEXT, "
+                    + "idDirector INTEGER, "
+                    + "FOREIGN KEY (idDirector) REFERENCES director(id_director)"
                     + ")");
 
-            // Tabla Intermedia Pelicula-Actor Reparto (Para el campo Actores[] de cada películo)
+// Tabla intermedia Actor-Película
             stmt.execute("CREATE TABLE IF NOT EXISTS actor_pelicula ("
-                    + "nombrePelicula TEXT, "
-                    + "nombreActor TEXT, "
-                    + "PRIMARY KEY (nombrePelicula, nombreActor), "
-                    + "FOREIGN KEY (nombrePelicula) REFERENCES Pelicula(Titulo) ON DELETE CASCADE, "
-                    + "FOREIGN KEY (nombreActor) REFERENCES Actor(Nombre) ON DELETE CASCADE"
+                    + "id_actor INTEGER, "
+                    + "id_pelicula INTEGER, "
+                    + "rol TEXT, "
+                    + "PRIMARY KEY (id_actor, id_pelicula), "
+                    + "FOREIGN KEY (id_actor) REFERENCES actor(id_actor) ON DELETE CASCADE, "
+                    + "FOREIGN KEY (id_pelicula) REFERENCES peliculas(id) ON DELETE CASCADE"
                     + ")");
 
-            // Tabla de ejemplares
+// Tabla de ejemplares
             stmt.execute("CREATE TABLE IF NOT EXISTS ejemplar ("
-                    + "NumEjemplar INTEGER PRIMARY KEY AUTOINCREMENT, "
-                    + "Estado TEXT, "
-                    + "nombrePelicula TEXT, "
-                    + "FOREIGN KEY (nombrePelicula) REFERENCES Pelicula(Titulo) ON DELETE CASCADE"
+                    + "num_ejemplar INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    + "id_pelicula INTEGER, "
+                    + "estado TEXT, "
+                    + "FOREIGN KEY (id_pelicula) REFERENCES peliculas(id) ON DELETE CASCADE"
                     + ")");
 
-            // Tabla de socios
+// Tabla de socios
             stmt.execute("CREATE TABLE IF NOT EXISTS socio ("
-                    + "DNI TEXT PRIMARY KEY, "
-                    + "Nombre TEXT NOT NULL, "
-                    + "Direccion TEXT, "
-                    + "Telefono TEXT"
+                    + "dni TEXT PRIMARY KEY, "
+                    + "nombre TEXT NOT NULL, "
+                    + "direccion TEXT, "
+                    + "telefono TEXT, "
+                    + "dni_aval TEXT, "
+                    + "FOREIGN KEY (dni_aval) REFERENCES socio(dni)"
                     + ")");
 
-            // Tabla de alquileres
+// Tabla de alquileres
             stmt.execute("CREATE TABLE IF NOT EXISTS alquiler ("
-                    + "CodigoAlquiler INTEGER PRIMARY KEY AUTOINCREMENT, "
-                    + "Adquisicion TEXT, "
-                    + "Limite TEXT, "
-                    + "dniSocio TEXT, "
-                    + "numEjemplar INTEGER, "
-                    + "FOREIGN KEY (dniSocio) REFERENCES Socio(DNI), "
-                    + "FOREIGN KEY (numEjemplar) REFERENCES Ejemplares(NumEjemplar)"
+                    + "id_alquiler INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    + "num_ejemplar INTEGER, "
+                    + "dni_socio TEXT, "
+                    + "fecha_inicio TEXT, "
+                    + "fecha_devolucion TEXT, "
+                    + "FOREIGN KEY (num_ejemplar) REFERENCES ejemplar(num_ejemplar), "
+                    + "FOREIGN KEY (dni_socio) REFERENCES socio(dni)"
                     + ")");
 
         } catch (SQLException e) {
